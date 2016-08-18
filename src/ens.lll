@@ -1,0 +1,152 @@
+;;; ---------------------------------------------------------------------------
+;;; Contract: Ethereum Name Service
+
+(seq
+
+  ;; --------------------------------------------------------------------------
+  ;; INIT
+
+  ;; Include standard libraries.
+  (include "../lib/constants.lll")
+  (include "../lib/utilities.lll")
+
+  ;; Set up initial state.
+  (sstore contract-owner (caller))
+
+  ;; --------------------------------------------------------------------------
+  ;; CODE
+
+  (returnlll
+    (seq
+
+      ;; ----------------------------------------------------------------------
+      ;; Initialize the contract. This function is similar to a constructor
+      ;; except that it has to be called manually with LLL.
+      ;;
+      ;; Signature: ENS(address)
+
+      (when (= function-id set-root-owner)
+        (seq only-owner
+
+          ;; Input parameters to this function.
+          (def 'root-owner (calldataload 0x04)) ; Owner of the root node.
+
+          ;; Set ownership of root node by storing passed-in address.
+          (sstore (+ records owner) root-owner)
+
+          ;; Nothing to return.
+          (stop)))
+
+
+      ;; ----------------------------------------------------------------------
+      ;; Returns the address that owns the specified node.
+      ;;
+      ;; Signature: owner(bytes32)
+
+      (when (= function-id get-owner)
+        (seq
+
+          ;; Input parameters to this function.
+          (def 'node (calldataload 0x04)) ; Return this node's owner.
+
+          ;; Get the node's owner and save it.
+          (mstore call-result (sload (+ (get-record node) owner)))
+
+          ;; Return result.
+          (return call-result 32)))
+
+      ;; ----------------------------------------------------------------------
+      ;; Returns the address of the resolver for the specified node.
+      ;;
+      ;; Signature: resolver(bytes32)
+
+      (when (= function-id get-resolver)
+        (seq
+
+          ;; Input parameters to this function.
+          (def 'node (calldataload 0x04)) ; Return this node's resolver.
+
+          ;; Get the node's resolver and save it.
+          (mstore call-result (sload (+ (get-record node) resolver)))
+
+          ;; Return result.
+          (return call-result 32)))
+
+      ;; ----------------------------------------------------------------------
+      ;; Transfers ownership of a node to a new address. May only be called by
+      ;; the current owner of the node.
+      ;;
+      ;; Signature: setOwner(bytes32,address)
+
+      (when (= function-id set-node-owner)
+        (seq only-node-owner
+
+          ;; Input parameters to this function.
+          (def 'node (calldataload 0x04)) ; Transfer ownership of this node.
+          (def 'new-owner (calldataload 0x24)) ; The address of the new owner.
+
+          ;; Transfer ownership by storing passed-in address.
+          (sstore (+ (get-record node) owner) new-owner)
+
+          ;; Emit an event about the transfer.
+          (log2 new-owner 32
+              (sha3 0x00 (lit 0x00 "Transfer(bytes32,address)")) node)
+
+          ;; Nothing to return.
+          (stop)))
+
+      ;; ----------------------------------------------------------------------
+      ;; Transfers ownership of a subnode sha3(node, label)  to a new address.
+      ;; May only be called by the current owner of the node.
+      ;;
+      ;; Signature: setOwner(bytes32,bytes32,address)
+
+      (when (= function-id set-subnode-owner)
+        (seq only-node-owner
+
+          ;; Input parameters to this function.
+          (def 'node (calldataload 0x04)) ; The parent node.
+          (def 'label (calldataload 0x24)) ; The hash of the subnode label.
+          (def 'new-owner (calldataload 0x44)) ; The address of the new owner.
+
+          ;; Transfer ownership by storing passed-in address.
+          (sstore (+ (get-record node label) owner) new-owner)
+
+          ;; Emit an event about the transfer.
+          (log3 new-owner 32
+              (sha3 0x00 (lit 0x00 "NewOwner(bytes32,bytes32,address)"))
+              node label)
+
+          ;; Nothing to return.
+          (stop)))
+
+      ;; ----------------------------------------------------------------------
+      ;; Sets the resolver address for the specified node.
+      ;;
+      ;; Signature: setResolver(bytes32,address)
+
+      (when (= function-id set-resolver)
+        (seq only-node-owner
+
+          ;; Input parameters to this function.
+          (def 'node (calldataload 0x04)) ; The node to update.
+          (def 'new-resolver (calldataload 0x24)) ; New resolver address.
+
+          ;; Transfer ownership by storing passed-in address.
+          (sstore (+ (get-record node) resolver) new-resolver)
+
+          ;; Emit an event about the change of resolver.
+          (log2 new-resolver 32
+              (sha3 0x00 (lit 0x00 "NewResolver(bytes32,address)")) node)
+
+          ;; Nothing to return.
+          (stop)))
+
+      ;; ----------------------------------------------------------------------
+      ;; Fallback: No functions matched the function ID provided so we jump to
+      ;; an invalid location which causes an exception in the EVM. This results
+      ;; in any ether sent to the contract to be returned to the caller.
+
+      (jump invalid-location)))
+
+)

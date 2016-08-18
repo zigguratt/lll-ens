@@ -1,0 +1,78 @@
+;;; ---------------------------------------------------------------------------
+;;; Library: Utilities
+
+(seq
+
+  ;; --------------------------------------------------------------------------
+  ;; Function: bytes4(input)
+  ;;
+  ;; Extracts the four leftmost bytes of the input.
+  ;;
+  ;; Parameters:
+  ;; input - a long number
+
+  (def 'bytes4 (input)
+    (div input (exp 2 224)))
+
+  ;; --------------------------------------------------------------------------
+  ;; Function: function-id
+  ;;
+  ;; Retrieves the requested function ID from the first four bytes of
+  ;; the call data.
+
+  (def 'function-id
+    (bytes4 (calldataload 0x00)))
+
+  ;; --------------------------------------------------------------------------
+  ;; Function: get-record(node)
+  ;;
+  ;; Calculates record location for node passed in.
+  ;;
+  ;; Parameters:
+  ;; node - return the record location of this node.
+
+  (def 'get-record (node)
+    (+ records node))
+
+  ;; --------------------------------------------------------------------------
+  ;; Function: get-record(node, label)
+  ;;
+  ;; Calculates record location for node and label passed in.
+  ;;
+  ;; Parameters:
+  ;; node - return the record location of this node plus the label.
+  ;; label - The hash of the subnode label.
+
+  (def 'get-record (node label)
+    (seq
+      (mstore node-bytes node)
+      (mstore label-bytes label)
+      (+ records (sha3 node-bytes 64))))
+
+  ;; --------------------------------------------------------------------------
+  ;; Function: node-owner
+  ;;
+  ;; Retrieves node owner from node record.
+
+  (def 'node-owner
+    (sload (+ (record (calldataload 0x04) owner))))
+
+  ;; --------------------------------------------------------------------------
+  ;; Modifier: only-node-owner
+  ;;
+  ;; Check that the caller is the node owner.
+
+  (def 'only-node-owner
+    (when (!= (caller) node-owner)
+      (jump invalid-location)))
+
+  ;; --------------------------------------------------------------------------
+  ;; Modifier: only-owner
+  ;;
+  ;; Check that the caller is the contract owner.
+
+  (def 'only-owner
+    (when (!= (caller) @@contract-owner)
+      (jump invalid-location)))
+
+)
