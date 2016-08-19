@@ -11,14 +11,10 @@
   (def 'node-bytes  0x40)
   (def 'label-bytes 0x60)
 
-  ;; Storage.
-  (def 'contract-owner 0x00)
-
   ;; Jumping here causes an EVM error.
   (def 'invalid-location 0x02)
 
   ;; Precomputed function IDs.
-  (def 'set-root-owner    0x19a17468) ; ENS(address)
   (def 'get-owner         0x02571be3) ; owner(bytes32)
   (def 'get-resolver      0x0178b8bf) ; resolver(bytes32)
   (def 'set-node-owner    0x5b0fc9c3) ; setOwner(bytes32,address)

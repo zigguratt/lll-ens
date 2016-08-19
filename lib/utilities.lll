@@ -66,13 +66,4 @@
     (when (!= (caller) node-owner)
       (jump invalid-location)))
 
-  ;; --------------------------------------------------------------------------
-  ;; Modifier: only-owner
-  ;;
-  ;; Check that the caller is the contract owner.
-
-  (def 'only-owner
-    (when (!= (caller) @@contract-owner)
-      (jump invalid-location)))
-
 )

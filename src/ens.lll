@@ -10,33 +10,14 @@
   (include "../lib/constants.lll")
   (include "../lib/utilities.lll")
 
-  ;; Set up initial state.
-  (sstore contract-owner (caller))
+  ;; Set the caller as the owner of the root node.
+  (sstore records (caller))
 
   ;; --------------------------------------------------------------------------
   ;; CODE
 
   (returnlll
     (seq
-
-      ;; ----------------------------------------------------------------------
-      ;; Initialize the contract. This function is similar to a constructor
-      ;; except that it has to be called manually with LLL.
-      ;;
-      ;; Signature: ENS(address)
-
-      (when (= function-id set-root-owner)
-        (seq only-owner
-
-          ;; Input parameters to this function.
-          (def 'root-owner (calldataload 0x04)) ; Owner of the root node.
-
-          ;; Set ownership of root node by storing passed-in address.
-          (sstore (+ records owner) root-owner)
-
-          ;; Nothing to return.
-          (stop)))
-
 
       ;; ----------------------------------------------------------------------
       ;; Returns the address that owns the specified node.
