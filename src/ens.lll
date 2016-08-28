@@ -23,15 +23,17 @@
       ;; Returns the address that owns the specified node.
       ;;
       ;; Signature: owner(bytes32)
+      ;; 
+      ;; @param node Return this node's owner.
 
-      (when (= function-id get-owner)
+      (when (= function-id get-node-owner)
         (seq
 
-          ;; Input parameters to this function.
-          (def 'node (calldataload 0x04)) ; Return this node's owner.
+          ;; Define input parameters to this function.
+          (def 'node (calldataload 0x04))
 
           ;; Get the node's owner and save it.
-          (mstore call-result (sload (+ (get-record node) owner)))
+          (mstore call-result (get-owner node))
 
           ;; Return result.
           (return call-result 32)))
@@ -40,15 +42,17 @@
       ;; Returns the address of the resolver for the specified node.
       ;;
       ;; Signature: resolver(bytes32)
+      ;; 
+      ;; @param node Return this node's resolver.
 
-      (when (= function-id get-resolver)
+      (when (= function-id get-node-resolver)
         (seq
 
-          ;; Input parameters to this function.
-          (def 'node (calldataload 0x04)) ; Return this node's resolver.
+          ;; Define input parameters to this function.
+          (def 'node (calldataload 0x04))
 
           ;; Get the node's resolver and save it.
-          (mstore call-result (sload (+ (get-record node) resolver)))
+          (mstore call-result (get-resolver node))
 
           ;; Return result.
           (return call-result 32)))
@@ -58,13 +62,16 @@
       ;; the current owner of the node.
       ;;
       ;; Signature: setOwner(bytes32,address)
+      ;;
+      ;; @param node The node to transfer ownership of.
+      ;; @param new-owner The address of the new owner.
 
       (when (= function-id set-node-owner)
-        (seq only-node-owner
+        (seq (only-node-owner (calldataload 0x04))
 
-          ;; Input parameters to this function.
-          (def 'node (calldataload 0x04)) ; Transfer ownership of this node.
-          (def 'new-owner (calldataload 0x24)) ; The address of the new owner.
+          ;; Define input parameters to this function.
+          (def 'node (calldataload 0x04))
+          (def 'new-owner (calldataload 0x24))
 
           ;; Transfer ownership by storing passed-in address.
           (sstore (+ (get-record node) owner) new-owner)
@@ -81,14 +88,18 @@
       ;; May only be called by the current owner of the node.
       ;;
       ;; Signature: setOwner(bytes32,bytes32,address)
+      ;;
+      ;; @param node The parent node.
+      ;; @param label The hash of the label specifying the subnode.
+      ;; @param new-owner The address of the new owner.
 
       (when (= function-id set-subnode-owner)
-        (seq only-node-owner
+        (seq (only-node-owner (calldataload 0x04))
 
-          ;; Input parameters to this function.
-          (def 'node (calldataload 0x04)) ; The parent node.
-          (def 'label (calldataload 0x24)) ; The hash of the subnode label.
-          (def 'new-owner (calldataload 0x44)) ; The address of the new owner.
+          ;; Define input parameters to this function.
+          (def 'node (calldataload 0x04))
+          (def 'label (calldataload 0x24))
+          (def 'new-owner (calldataload 0x44))
 
           ;; Transfer ownership by storing passed-in address.
           (sstore (+ (get-record node label) owner) new-owner)
@@ -105,13 +116,17 @@
       ;; Sets the resolver address for the specified node.
       ;;
       ;; Signature: setResolver(bytes32,address)
+      ;;
+      ;; @param node The node to update.
+      ;; @param new-resolver The address of the resolver.
 
-      (when (= function-id set-resolver)
-        (seq only-node-owner
 
-          ;; Input parameters to this function.
-          (def 'node (calldataload 0x04)) ; The node to update.
-          (def 'new-resolver (calldataload 0x24)) ; New resolver address.
+      (when (= function-id set-node-resolver)
+        (seq (only-node-owner (calldataload 0x04))
+
+          ;; Define input parameters to this function.
+          (def 'node (calldataload 0x04))
+          (def 'new-resolver (calldataload 0x24))
 
           ;; Transfer ownership by storing passed-in address.
           (sstore (+ (get-record node) resolver) new-resolver)

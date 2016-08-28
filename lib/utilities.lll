@@ -4,19 +4,14 @@
 (seq
 
   ;; --------------------------------------------------------------------------
-  ;; Function: bytes4(input)
+  ;; Extracts the four leftmost bytes of input.
   ;;
-  ;; Extracts the four leftmost bytes of the input.
-  ;;
-  ;; Parameters:
-  ;; input - a long number
+  ;; @param input A long number
 
   (def 'bytes4 (input)
     (div input (exp 2 224)))
 
   ;; --------------------------------------------------------------------------
-  ;; Function: function-id
-  ;;
   ;; Retrieves the requested function ID from the first four bytes of
   ;; the call data.
 
@@ -24,24 +19,20 @@
     (bytes4 (calldataload 0x00)))
 
   ;; --------------------------------------------------------------------------
-  ;; Function: get-record(node)
-  ;;
   ;; Calculates record location for node passed in.
   ;;
-  ;; Parameters:
-  ;; node - return the record location of this node.
+  ;; @param node Return the record location of this node.
 
   (def 'get-record (node)
-    (+ records node))
+    (seq
+      (mstore node-bytes node)
+      (+ records (sha3 node-bytes 32))))
 
   ;; --------------------------------------------------------------------------
-  ;; Function: get-record(node, label)
-  ;;
   ;; Calculates record location for node and label passed in.
   ;;
-  ;; Parameters:
-  ;; node - return the record location of this node plus the label.
-  ;; label - The hash of the subnode label.
+  ;; @param node The parent node.
+  ;; @param label The hash of the subnode label.
 
   (def 'get-record (node label)
     (seq
@@ -50,20 +41,28 @@
       (+ records (sha3 node-bytes 64))))
 
   ;; --------------------------------------------------------------------------
-  ;; Function: node-owner
+  ;; Retrieves owner from node record.
   ;;
-  ;; Retrieves node owner from node record.
+  ;; @param node Get owner of this node.
 
-  (def 'node-owner
-    (sload (+ (record (calldataload 0x04) owner))))
+  (def 'get-owner (node)
+    (sload (+ (get-record node) owner)))
 
   ;; --------------------------------------------------------------------------
-  ;; Modifier: only-node-owner
+  ;; Retrieves resolver from node record.
   ;;
-  ;; Check that the caller is the node owner.
+  ;; @param node Get resolver of this node.
 
-  (def 'only-node-owner
-    (when (!= (caller) node-owner)
+  (def 'get-resolver (node)
+    (sload (+ (get-record node) resolver)))
+
+  ;; --------------------------------------------------------------------------
+  ;; Check that the caller is the node owner.
+  ;;
+  ;; @param node Check owner of this node.
+
+  (def 'only-node-owner (node)
+    (when (!= (caller) (get-owner node))
       (jump invalid-location)))
 
 )
