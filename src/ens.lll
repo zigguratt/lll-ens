@@ -84,7 +84,7 @@
           (stop)))
 
       ;; ----------------------------------------------------------------------
-      ;; Transfers ownership of a subnode sha3(node, label)  to a new address.
+      ;; Transfers ownership of a subnode sha3(node, label) to a new address.
       ;; May only be called by the current owner of the node.
       ;;
       ;; Signature: setOwner(bytes32,bytes32,address)
@@ -139,9 +139,7 @@
           (stop)))
 
       ;; ----------------------------------------------------------------------
-      ;; Fallback: No functions matched the function ID provided so we jump to
-      ;; an invalid location which causes an exception in the EVM. This results
-      ;; in any ether sent to the contract to be returned to the caller.
+      ;; Fallback: No functions matched the function ID provided.
 
       (jump invalid-location)))
 
