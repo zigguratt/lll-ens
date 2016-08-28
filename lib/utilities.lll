@@ -24,9 +24,7 @@
   ;; @param node Return the record location of this node.
 
   (def 'get-record (node)
-    (seq
-      (mstore node-bytes node)
-      (+ records (sha3 node-bytes 32))))
+      (+ records node))
 
   ;; --------------------------------------------------------------------------
   ;; Calculates record location for node and label passed in.
