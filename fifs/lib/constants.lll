@@ -1,0 +1,46 @@
+;;; ---------------------------------------------------------------------------
+;;; Library: Constants
+
+(seq
+
+  ;; --------------------------------------------------------------------------
+  ;; Constant definitions.
+
+  ;; Memory (0x00 is used by logging).
+  (def 'call-result   0x0020)
+  (def 'node-bytes    0x0040)
+  (def 'label-bytes   0x0060)
+  (def 'node-hash     0x0080)
+  (def 'current-owner 0x00a0)
+  (def 'call-data     0x00c0)
+  (def 'call-result   0x01c0)
+  (def 'return-data   0x02c0)
+
+  ;; Storage.
+  (def 'contract-owner 0x00)
+  (def 'ens-registry   0x01)
+  (def 'root-node      0x02)
+
+  ;; Jumping here causes an EVM error.
+  (def 'invalid-location 0x02)
+
+  ;; ENS function IDs.
+  (def 'get-node-owner    0x02571be3) ; owner(bytes32)
+  (def 'get-node-resolver 0x0178b8bf) ; resolver(bytes32)
+  (def 'set-node-owner    0x5b0fc9c3) ; setOwner(bytes32,address)
+  (def 'set-subnode-owner 0x569cd595) ; setOwner(bytes32,bytes32,address)
+  (def 'set-node-resolver 0x1896f70a) ; setResolver(bytes32,address)
+
+  ;; FIFSRegistrar function IDs.
+  (def 'fifs-registrar 0x9d063ed8) ; FIFSRegistrar(address,bytes32)
+  (def 'register-name  0xd22057a9) ; register(bytes32,address)
+
+  ;; Records storage location.
+  (def 'records ; web3.sha3("Record")
+    "0xbac32db01d928d44eeb2a5dc819058fdfd1c75eadd7631e0a46e4a5a709fddbb")
+
+  ;; Record offsets.
+  (def 'owner    0x00) ; owner offset into node record
+  (def 'resolver 0x20) ; resolver offset into node record
+
+)
