@@ -1,16 +1,33 @@
 ;;; ---------------------------------------------------------------------------
-;;; Library: Utilities
+;;; Macros
 
 (seq
 
   ;; --------------------------------------------------------------------------
-  ;; Modifier: only-owner
-  ;;
-  ;; Check that the caller is the contract owner.
+  ;; Constant definitions.
 
-  (def 'only-owner
-    (when (!= (caller) @@contract-owner)
-      (jump invalid-location)))
+  ;; Memory (0x00 is used by logging).
+  (def 'node-bytes  0x20)
+  (def 'label-bytes 0x40)
+  (def 'call-result 0x60)
+
+  ;; Precomputed function IDs.
+  (def 'get-node-owner    0x02571be3) ; owner(bytes32)
+  (def 'get-node-resolver 0x0178b8bf) ; resolver(bytes32)
+  (def 'set-node-owner    0x5b0fc9c3) ; setOwner(bytes32,address)
+  (def 'set-subnode-owner 0x569cd595) ; setOwner(bytes32,bytes32,address)
+  (def 'set-node-resolver 0x1896f70a) ; setResolver(bytes32,address)
+
+  ;; Records storage location.
+  (def 'records ; web3.sha3("Record")
+    "0xbac32db01d928d44eeb2a5dc819058fdfd1c75eadd7631e0a46e4a5a709fddbb")
+
+  ;; Record offsets.
+  (def 'owner    0x00) ; owner offset into node record
+  (def 'resolver 0x20) ; resolver offset into node record
+
+  ;; Jumping here causes an EVM error.
+  (def 'invalid-location 0x02)
 
   ;; --------------------------------------------------------------------------
   ;; Extracts the four leftmost bytes of input.

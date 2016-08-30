@@ -1,0 +1,53 @@
+;;; ---------------------------------------------------------------------------
+;;; Macros
+
+(seq
+
+  ;; --------------------------------------------------------------------------
+  ;; Constant definitions.
+
+  ;; Memory (0x00 is used by logging).
+  (def 'node-bytes    0x20)
+  (def 'label-bytes   0x40)
+  (def 'node-hash     0x60)
+  (def 'current-owner 0x80)
+
+  ;; Memory locations for "call".
+  (def 'call-data     0x00a0)
+  (def 'return-data   0x01a0)
+
+  ;; Storage.
+  (def 'contract-owner 0x00)
+  (def 'ens-registry   0x01)
+  (def 'root-node      0x02)
+
+  ;; Precomputed function IDs.
+  (def 'fifs-registrar 0x9d063ed8) ; FIFSRegistrar(address,bytes32)
+  (def 'register-name  0xd22057a9) ; register(bytes32,address)
+
+  ;; Jumping here causes an EVM error.
+  (def 'invalid-location 0x02)
+
+  ;; --------------------------------------------------------------------------
+  ;; Check that the caller is the contract owner.
+
+  (def 'only-owner
+    (when (!= (caller) @@contract-owner)
+      (jump invalid-location)))
+
+  ;; --------------------------------------------------------------------------
+  ;; Extracts the four leftmost bytes of input.
+  ;;
+  ;; @param input A long number
+
+  (def 'bytes4 (input)
+    (div input (exp 2 224)))
+
+  ;; --------------------------------------------------------------------------
+  ;; Retrieves the requested function ID from the first four bytes of
+  ;; the call data.
+
+  (def 'function-id
+    (bytes4 (calldataload 0x00)))
+
+)

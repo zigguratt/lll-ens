@@ -6,9 +6,8 @@
   ;; --------------------------------------------------------------------------
   ;; INIT
 
-  ;; Include standard libraries.
-  (include "../lib/constants.lll")
-  (include "../lib/utilities.lll")
+  ;; Include macros.
+  (include "macros.lll")
 
   ;; Set the caller as the owner of the root node.
   (sstore records (caller))

@@ -1,15 +1,13 @@
 ;;; ---------------------------------------------------------------------------
-;;; Contract: A registrar that allocates subdomains to the first person to
-;;; claim them.
+;;; A registrar that allocates subdomains to the first person to claim them.
 
 (seq
 
   ;; --------------------------------------------------------------------------
   ;; INIT
 
-  ;; Include standard libraries.
-  (include "../lib/constants.lll")
-  (include "../lib/utilities.lll")
+  ;; Include macros.
+  (include "macros.lll")
 
   ;; Set up initial state.
   (sstore contract-owner (caller))
@@ -62,13 +60,13 @@
           (mstore node-hash (sha3 node-bytes 32))
 
           ;; Call owner(bytes32).
-          (mstore call-data (pad-right get-node-owner))
-          (mstore (+ call-data 4) @node-hash)
-          (mstore current-owner (call (- (gas) 1000) 0 @@ens-registry
-            call-data 36 return-data 32))
+          ;(mstore call-data (pad-right get-node-owner))
+          ;(mstore (+ call-data 4) @node-hash)
+          ;(mstore current-owner (call (- (gas) 1000) 0 @@ens-registry
+          ;  call-data 36 return-data 32))
 
-          ;; Transfer ownership by storing passed-in address.
-          (sstore (+ (get-record node) owner) new-owner)
+          ;;; Transfer ownership by storing passed-in address.
+          ;(sstore (+ (get-record node) owner) new-owner)
 
           ;; Nothing to return.
           (stop)))
