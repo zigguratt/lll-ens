@@ -15,7 +15,7 @@
   (def 'get-node-owner    0x02571be3) ; owner(bytes32)
   (def 'get-node-resolver 0x0178b8bf) ; resolver(bytes32)
   (def 'set-node-owner    0x5b0fc9c3) ; setOwner(bytes32,address)
-  (def 'set-subnode-owner 0x569cd595) ; setOwner(bytes32,bytes32,address)
+  (def 'set-subnode-owner 0x06ab5923) ; setSubnodeOwner(bytes32,bytes32,address)
   (def 'set-node-resolver 0x1896f70a) ; setResolver(bytes32,address)
 
   ;; Records storage location.

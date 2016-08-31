@@ -86,7 +86,7 @@
       ;; Transfers ownership of a subnode sha3(node, label) to a new address.
       ;; May only be called by the current owner of the node.
       ;;
-      ;; Signature: setOwner(bytes32,bytes32,address)
+      ;; Signature: setSubnodeOwner(bytes32,bytes32,address)
       ;;
       ;; @param node The parent node.
       ;; @param label The hash of the label specifying the subnode.
