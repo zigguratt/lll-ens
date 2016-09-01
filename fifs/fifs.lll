@@ -55,18 +55,34 @@
           (def 'subnode (calldataload 0x04))
           (def 'owner (calldataload 0x24))
 
+          ;; Store the components of the node for upcoming sha3.
           (mstore node-bytes @@root-node)
           (mstore label-bytes subnode)
-          (mstore node-hash (sha3 node-bytes 32))
+
+          ;; Set up the call data.
+          (mstore (+ call-data 0x00) (pad-right get-node-owner))
+          (mstore (+ call-data 0x04) (sha3 node-bytes 32))
 
           ;; Call owner(bytes32).
-          ;(mstore call-data (pad-right get-node-owner))
-          ;(mstore (+ call-data 4) @node-hash)
-          ;(mstore current-owner (call (- (gas) 1000) 0 @@ens-registry
-          ;  call-data 36 return-data 32))
+          (mstore return-code (call (- (gas) 1000) 0 @@ens-registry
+              call-data 36 return-data 32))
 
-          ;;; Transfer ownership by storing passed-in address.
-          ;(sstore (+ (get-record node) owner) new-owner)
+          ;; If the call failed or the caller isn't the current node owner,
+          ;; throw an exception.
+          (when (or (= @return-code false) (!= @return-data (caller)))
+            (jump invalid-location))
+
+          ;; Set up the call data.
+          (mstore (+ call-data 0x00) (pad-right set-subnode-owner))
+          (mstore (+ call-data 0x04) @@root-node)
+          (mstore (+ call-data 0x24) subnode)
+          (mstore (+ call-data 0x44) owner)
+
+          ;; Call setSubnodeOwner(bytes32,bytes32,address). If the call failed,
+          ;; throw an exception.
+          (when (= (call (- (gas) 1000) 0 @@ens-registry
+              call-data 100 return-data 32) false)
+            (jump invalid-location))
 
           ;; Nothing to return.
           (stop)))

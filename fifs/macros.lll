@@ -6,15 +6,18 @@
   ;; --------------------------------------------------------------------------
   ;; Constant definitions.
 
+  ;; Booleans.
+  (def 'true  1)
+  (def 'false 0)
+
   ;; Memory (0x00 is used by logging).
   (def 'node-bytes    0x20)
   (def 'label-bytes   0x40)
-  (def 'node-hash     0x60)
-  (def 'current-owner 0x80)
+  (def 'return-code   0x60)
 
   ;; Memory locations for "call".
-  (def 'call-data     0x00a0)
-  (def 'return-data   0x01a0)
+  (def 'call-data   0x80)
+  (def 'return-data 0x180)
 
   ;; Storage.
   (def 'contract-owner 0x00)
@@ -22,8 +25,10 @@
   (def 'root-node      0x02)
 
   ;; Precomputed function IDs.
-  (def 'fifs-registrar 0x9d063ed8) ; FIFSRegistrar(address,bytes32)
-  (def 'register-name  0xd22057a9) ; register(bytes32,address)
+  (def 'fifs-registrar    0x9d063ed8) ; FIFSRegistrar(address,bytes32)
+  (def 'register-name     0xd22057a9) ; register(bytes32,address)
+  (def 'get-node-owner    0x02571be3) ; owner(bytes32)
+  (def 'set-subnode-owner 0x06ab5923) ; setSubnodeOwner(bytes32,bytes32,address)
 
   ;; Jumping here causes an EVM error.
   (def 'invalid-location 0x02)
@@ -42,6 +47,14 @@
 
   (def 'bytes4 (input)
     (div input (exp 2 224)))
+
+  ;; --------------------------------------------------------------------------
+  ;; Pads the input so it's the leftmost four bytes of the result.
+  ;;
+  ;; @param input A short hash
+
+  (def 'pad-right (input)
+    (mul input (exp 2 224)))
 
   ;; --------------------------------------------------------------------------
   ;; Retrieves the requested function ID from the first four bytes of
