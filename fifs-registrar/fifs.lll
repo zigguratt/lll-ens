@@ -33,7 +33,7 @@
           (def 'ens-address (calldataload 0x04))
           (def 'node (calldataload 0x24))
 
-          ;; Set contract address and enable it.
+          ;; Store the "constructor" parameters.
           (sstore ens-registry ens-address)
           (sstore root-node node)
 
