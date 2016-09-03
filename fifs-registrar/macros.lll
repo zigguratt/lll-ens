@@ -11,9 +11,9 @@
   (def 'false 0)
 
   ;; Memory (0x00 is used by logging).
-  (def 'node-bytes    0x20)
-  (def 'label-bytes   0x40)
-  (def 'return-code   0x60)
+  (def 'node-bytes  0x20)
+  (def 'label-bytes 0x40)
+  (def 'return-code 0x60)
 
   ;; Memory locations for "call".
   (def 'call-data   0x80)
@@ -32,13 +32,6 @@
 
   ;; Jumping here causes an EVM error.
   (def 'invalid-location 0x02)
-
-  ;; --------------------------------------------------------------------------
-  ;; Check that the caller is the contract owner.
-
-  (def 'only-owner
-    (when (!= (caller) @@contract-owner)
-      (jump invalid-location)))
 
   ;; --------------------------------------------------------------------------
   ;; Extracts the four leftmost bytes of input.
@@ -62,5 +55,12 @@
 
   (def 'function-id
     (bytes4 (calldataload 0x00)))
+
+  ;; --------------------------------------------------------------------------
+  ;; Check that the caller is the contract owner.
+
+  (def 'only-owner
+    (when (!= (caller) @@contract-owner)
+      (jump invalid-location)))
 
 )
