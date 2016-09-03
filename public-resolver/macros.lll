@@ -12,6 +12,7 @@
 
   ;; Memory (0x00 is used by logging).
   (def 'call-result   0x20)
+  (def 'return-code   0x40)
 
   ;; Memory locations for "call".
   (def 'call-data   0x100)
@@ -28,6 +29,7 @@
   (def 'get-content-hash 0x2dff6941) ; content(bytes32)
   (def 'set-node-address 0xd5fa2b00) ; setAddr(bytes32,address)
   (def 'set-content-hash 0xc3d014d6) ; setContent(bytes32,bytes32)
+  (def 'get-node-owner   0x02571be3) ; owner(bytes32)
 
   ;; Addresses mapping: web3.sha3("addresses")
   (def 'addresses 0x4210e5b5e314de2f302893e9e54a8d74cdb13aabc4483e34a1abb30c0ae64e1b)
@@ -67,7 +69,7 @@
   ;; @param node Return the address for this node.
 
   (def 'get-address (node)
-      (sload (+ addresses node)))
+    (sload (+ addresses node)))
 
   ;; --------------------------------------------------------------------------
   ;; Stores the address for the node passed in.
@@ -76,7 +78,7 @@
   ;; @param addr The address to set.
 
   (def 'set-address (node addr)
-      (sstore (+ addresses node) addr))
+    (sstore (+ addresses node) addr))
 
   ;; --------------------------------------------------------------------------
   ;; Returns the content hash for the node passed in.
@@ -84,7 +86,7 @@
   ;; @param node Return the content for this node.
 
   (def 'get-content (node)
-      (sload (+ contents node)))
+    (sload (+ contents node)))
 
   ;; --------------------------------------------------------------------------
   ;; Stores the content hash for the node passed in.
@@ -93,7 +95,7 @@
   ;; @param content The content hash to set.
 
   (def 'set-content (node content)
-      (sstore (+ contents node) content))
+    (sstore (+ contents node) content))
 
   ;; --------------------------------------------------------------------------
   ;; Check that the caller is the contract owner.
@@ -108,7 +110,19 @@
   ;; @param node Check owner of this node.
 
   (def 'only-owner (node)
-    (when (!= (caller) (get-content node))
-      (jump invalid-location)))
+    (seq
+
+      ;; Set up the call data.
+      (mstore (+ call-data 0x00) (pad-right get-node-owner))
+      (mstore (+ call-data 0x04) node)
+
+      ;; Call owner(bytes32).
+      (mstore return-code (call (- (gas) 1000) 0 @@ens-registry
+          call-data 36 return-data 32))
+
+      ;; If the call failed or the caller isn't the current node owner,
+      ;; throw an exception.
+      (when (or (= @return-code false) (!= @return-data (caller)))
+        (jump invalid-location))))
 
 )
