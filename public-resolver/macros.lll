@@ -1,0 +1,114 @@
+;;; ---------------------------------------------------------------------------
+;;; Macros.
+
+(seq
+
+  ;; --------------------------------------------------------------------------
+  ;; Constant definitions.
+
+  ;; Booleans.
+  (def 'true  1)
+  (def 'false 0)
+
+  ;; Memory (0x00 is used by logging).
+  (def 'call-result   0x20)
+
+  ;; Memory locations for "call".
+  (def 'call-data   0x100)
+  (def 'return-data 0x200)
+
+  ;; Storage.
+  (def 'contract-owner 0x00)
+  (def 'ens-registry   0x01)
+
+  ;; Precomputed function IDs.
+  (def 'public-resolver  0xebb045fa) ; PublicResolver(address)
+  (def 'has-record-type  0x41b9dc2b) ; has(bytes32,bytes32)
+  (def 'get-node-address 0x3b3b57de) ; addr(bytes32)
+  (def 'get-content-hash 0x2dff6941) ; content(bytes32)
+  (def 'set-node-address 0xd5fa2b00) ; setAddr(bytes32,address)
+  (def 'set-content-hash 0xc3d014d6) ; setContent(bytes32,bytes32)
+
+  ;; Addresses mapping: web3.sha3("addresses")
+  (def 'addresses 0x4210e5b5e314de2f302893e9e54a8d74cdb13aabc4483e34a1abb30c0ae64e1b)
+
+  ;; Contents mapping: web3.sha3("contents")
+  (def 'contents 0xe8ace4bef85e14b3ff826469acc0c7a31ad1ef11e69b3ddb728468c4258c4819)
+
+  ;; Jumping here causes an EVM error.
+  (def 'invalid-location 0x02)
+
+  ;; --------------------------------------------------------------------------
+  ;; Extracts the four leftmost bytes of input.
+  ;;
+  ;; @param input A long number
+
+  (def 'bytes4 (input)
+    (div input (exp 2 224)))
+
+  ;; --------------------------------------------------------------------------
+  ;; Pads the input so it's the leftmost four bytes of the result.
+  ;;
+  ;; @param input A short hash
+
+  (def 'pad-right (input)
+    (mul input (exp 2 224)))
+
+  ;; --------------------------------------------------------------------------
+  ;; Retrieves the requested function ID from the first four bytes of
+  ;; the call data.
+
+  (def 'function-id
+    (bytes4 (calldataload 0x00)))
+
+  ;; --------------------------------------------------------------------------
+  ;; Returns any address for node passed in.
+  ;;
+  ;; @param node Return the address for this node.
+
+  (def 'get-address (node)
+      (sload (+ addresses node)))
+
+  ;; --------------------------------------------------------------------------
+  ;; Stores the address for the node passed in.
+  ;;
+  ;; @param node Set the address for this node.
+  ;; @param addr The address to set.
+
+  (def 'set-address (node addr)
+      (sstore (+ addresses node) addr))
+
+  ;; --------------------------------------------------------------------------
+  ;; Returns the content hash for the node passed in.
+  ;;
+  ;; @param node Return the content for this node.
+
+  (def 'get-content (node)
+      (sload (+ contents node)))
+
+  ;; --------------------------------------------------------------------------
+  ;; Stores the content hash for the node passed in.
+  ;;
+  ;; @param node Set the content hash for this node.
+  ;; @param content The content hash to set.
+
+  (def 'set-content (node content)
+      (sstore (+ contents node) content))
+
+  ;; --------------------------------------------------------------------------
+  ;; Check that the caller is the contract owner.
+
+  (def 'only-owner
+    (when (!= (caller) @@contract-owner)
+      (jump invalid-location)))
+
+  ;; --------------------------------------------------------------------------
+  ;; Check that the caller is the node owner.
+  ;;
+  ;; @param node Check owner of this node.
+
+  (def 'only-owner (node)
+    (when (!= (caller) (get-content node))
+      (jump invalid-location)))
+
+)

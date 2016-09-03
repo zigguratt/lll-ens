@@ -1,0 +1,161 @@
+;;; ---------------------------------------------------------------------------
+;;; A simple resolver anyone can use; only allows the owner of a node to set
+;;; its address.
+
+(seq
+
+  ;; --------------------------------------------------------------------------
+  ;; INIT
+
+  ;; Include macros.
+  (include "macros.lll")
+
+  ;; Set up initial state.
+  (sstore contract-owner (caller))
+
+  ;; --------------------------------------------------------------------------
+  ;; CODE
+
+  (returnlll
+    (seq
+
+      ;; ----------------------------------------------------------------------
+      ;; Initialize the public resolver.
+      ;;
+      ;; @param ens-address The address of the ENS registry.
+      ;;
+      ;; Signature: PublicResolver(address)
+
+      (when (= function-id public-resolver)
+        (seq only-owner
+
+          ;; Define input parameters to this function.
+          (def 'ens-address (calldataload 0x04))
+
+          ; Store the "constructor" parameter.
+          (sstore ens-registry ens-address)
+
+          ;; Stop here; nothing to return.
+          (stop)))
+
+      ;; ----------------------------------------------------------------------
+      ;; Returns true if the specified node has the specified record type.
+      ;;
+      ;; @param node The ENS node to query.
+      ;; @param kind The record type name, as specified in EIP137.
+      ;; @return True if this resolver has a record of the provided type on the
+      ;;         provided node.
+      ;;
+      ;; Signature: has(bytes32,bytes32)
+
+      (when (= function-id has-record-type)
+        (seq
+
+          ;; Define input parameters to this function.
+          (def 'node (calldataload 0x04))
+          (def 'kind (calldataload 0x24))
+
+          ;; Do the required comparisons and save for return.
+          (mstore call-result
+            (or (and (= kind "addr") (!= (get-address node) 0))
+                (and (= kind "content") (!= (get-content node) 0))))
+
+          ;; Return boolean result.
+          (return call-result 32)))
+
+      ;; ----------------------------------------------------------------------
+      ;; Returns the address associated with an ENS node.
+      ;;
+      ;; @param node The ENS node to query.
+      ;; @return The associated address.
+      ;;
+      ;; Signature: addr(bytes32)
+
+      (when (= function-id get-node-address)
+        (seq
+
+          ;; Define input parameters to this function.
+          (def 'node (calldataload 0x04))
+
+          ;; Retrieve the node's address.
+          (mstore call-result (get-address node))
+
+          (when (= @call-result 0)
+            (jump invalid-location))
+
+          ;; Return result.
+          (return call-result 32)))
+
+      ;; ----------------------------------------------------------------------
+      ;; Returns the content hash associated with an ENS node.
+      ;;
+      ;; @param node The ENS node to query.
+      ;; @return The associated content hash.
+      ;;
+      ;; Signature: content(bytes32)
+
+      (when (= function-id get-content-hash)
+        (seq
+
+          ;; Define input parameters to this function.
+          (def 'node (calldataload 0x04))
+
+          ;; Retrieve the node's content hash.
+          (mstore call-result (get-content node))
+
+          (when (= @call-result 0)
+            (jump invalid-location))
+
+          ;; Return result.
+          (return call-result 32)))
+
+      ;; ----------------------------------------------------------------------
+      ;; Sets the address associated with an ENS node.
+      ;; May only be called by the owner of that node in the ENS registry.
+      ;;
+      ;; @param node The node to update.
+      ;; @param addr The address to set.
+      ;;
+      ;; Signature: setAddr(bytes32,address)
+
+      (when (= function-id set-node-address)
+        (seq (only-owner (calldataload 0x04))
+
+          ;; Define input parameters to this function.
+          (def 'node (calldataload 0x04))
+          (def 'addr (calldataload 0x24))
+
+          ;; Store the node's new address.
+          (set-address node addr)
+
+          ;; Stop here; nothing to return.
+          (stop)))
+
+      ;; ----------------------------------------------------------------------
+      ;; Sets the content hash associated with an ENS node.
+      ;; May only be called by the owner of that node in the ENS registry.
+      ;;
+      ;; @param node The node to update.
+      ;; @param content The content hash to set.
+      ;;
+      ;; Signature: setContent(bytes32,bytes32)
+
+      (when (= function-id set-content-hash)
+        (seq (only-owner (calldataload 0x04))
+
+          ;; Define input parameters to this function.
+          (def 'node (calldataload 0x04))
+          (def 'content (calldataload 0x24))
+
+          ;; Store the node's new content.
+          (set-content node content)
+
+          ;; Stop here; nothing to return.
+          (stop)))
+
+      ;; ----------------------------------------------------------------------
+      ;; Fallback: No functions matched the function ID provided.
+
+      (jump invalid-location)))
+
+)
