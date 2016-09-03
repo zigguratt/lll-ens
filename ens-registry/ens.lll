@@ -9,14 +9,33 @@
   ;; Include macros.
   (include "macros.lll")
 
-  ;; Set the caller as the owner of the root node.
-  (sstore records (caller))
+  ;; Set up initial state.
+  (sstore contract-owner (caller))
 
   ;; --------------------------------------------------------------------------
   ;; CODE
 
   (returnlll
     (seq
+
+      ;; ----------------------------------------------------------------------
+      ;; Initialize the ENS registry.
+      ;;
+      ;; @param root-owner Address of the root node owner.
+      ;;
+      ;; Signature: ENS(address)
+
+      (when (= function-id set-root-owner)
+        (seq only-owner
+
+          ;; Input parameters to this function.
+          (def 'root-owner (calldataload 0x04)) ; Owner of the root node.
+
+          ;; Set ownership of root node by storing passed-in address.
+          (sstore (+ records owner) root-owner)
+
+          ;; Nothing to return.
+          (stop)))
 
       ;; ----------------------------------------------------------------------
       ;; Returns the address that owns the specified node.
@@ -66,7 +85,7 @@
       ;; Signature: setOwner(bytes32,address)
 
       (when (= function-id set-node-owner)
-        (seq (only-node-owner (calldataload 0x04))
+        (seq (only-owner (calldataload 0x04))
 
           ;; Define input parameters to this function.
           (def 'node (calldataload 0x04))
@@ -93,7 +112,7 @@
       ;; Signature: setSubnodeOwner(bytes32,bytes32,address)
 
       (when (= function-id set-subnode-owner)
-        (seq (only-node-owner (calldataload 0x04))
+        (seq (only-owner (calldataload 0x04))
 
           ;; Define input parameters to this function.
           (def 'node (calldataload 0x04))
@@ -121,7 +140,7 @@
 
 
       (when (= function-id set-node-resolver)
-        (seq (only-node-owner (calldataload 0x04))
+        (seq (only-owner (calldataload 0x04))
 
           ;; Define input parameters to this function.
           (def 'node (calldataload 0x04))

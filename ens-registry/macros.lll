@@ -7,20 +7,21 @@
   ;; Constant definitions.
 
   ;; Memory (0x00 is used by logging).
-  (def 'node-bytes  0x20)
-  (def 'label-bytes 0x40)
-  (def 'call-result 0x60)
+  (def 'contract-owner 0x20)
+  (def 'node-bytes     0x40)
+  (def 'label-bytes    0x60)
+  (def 'call-result    0x80)
 
   ;; Precomputed function IDs.
+  (def 'set-root-owner    0x19a17468) ; ENS(address)
   (def 'get-node-owner    0x02571be3) ; owner(bytes32)
   (def 'get-node-resolver 0x0178b8bf) ; resolver(bytes32)
   (def 'set-node-owner    0x5b0fc9c3) ; setOwner(bytes32,address)
   (def 'set-subnode-owner 0x06ab5923) ; setSubnodeOwner(bytes32,bytes32,address)
   (def 'set-node-resolver 0x1896f70a) ; setResolver(bytes32,address)
 
-  ;; Records storage location.
-  (def 'records ; web3.sha3("Record")
-    "0xbac32db01d928d44eeb2a5dc819058fdfd1c75eadd7631e0a46e4a5a709fddbb")
+  ;; Records storage location: web3.sha3("Record")
+  (def 'records 0xbac32db01d928d44eeb2a5dc819058fdfd1c75eadd7631e0a46e4a5a709fddbb)
 
   ;; Record offsets.
   (def 'owner    0x00) ; owner offset into node record
@@ -81,11 +82,18 @@
     (sload (+ (get-record node) resolver)))
 
   ;; --------------------------------------------------------------------------
+  ;; Check that the caller is the contract owner.
+  
+  (def 'only-owner
+    (when (!= (caller) @@contract-owner)
+      (jump invalid-location)))
+
+  ;; --------------------------------------------------------------------------
   ;; Check that the caller is the node owner.
   ;;
   ;; @param node Check owner of this node.
 
-  (def 'only-node-owner (node)
+  (def 'only-owner (node)
     (when (!= (caller) (get-owner node))
       (jump invalid-location)))
 
