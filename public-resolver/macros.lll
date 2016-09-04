@@ -13,10 +13,8 @@
   ;; Memory (0x00 is used by logging).
   (def 'call-result 0x20)
   (def 'return-code 0x40)
-
-  ;; Memory locations for "call".
   (def 'call-data   0x60)
-  (def 'return-data 0x160)
+  (def 'return-data 0x84)
 
   ;; Storage.
   (def 'contract-owner 0x00)

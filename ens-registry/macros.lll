@@ -7,10 +7,12 @@
   ;; Constant definitions.
 
   ;; Memory (0x00 is used by logging).
-  (def 'contract-owner 0x20)
-  (def 'node-bytes     0x40)
-  (def 'label-bytes    0x60)
-  (def 'call-result    0x80)
+  (def 'node-bytes  0x20)
+  (def 'label-bytes 0x40)
+  (def 'call-result 0x60)
+
+  ;; Storage.
+  (def 'contract-owner 0x00)
 
   ;; Precomputed function IDs.
   (def 'ens-registry      0x19a17468) ; ENS(address)
