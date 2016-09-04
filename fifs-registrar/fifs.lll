@@ -49,28 +49,11 @@
       ;; Signature: register(bytes32,address)
 
       (when (= function-id register-name)
-        (seq
+        (seq (only-owner (calldataload 0x04))
 
           ;; Define input parameters to this function.
           (def 'subnode (calldataload 0x04))
           (def 'owner (calldataload 0x24))
-
-          ;; Store the components of the node for upcoming sha3.
-          (mstore node-bytes @@root-node)
-          (mstore label-bytes subnode)
-
-          ;; Set up the call data.
-          (mstore (+ call-data 0x00) (pad-right get-node-owner))
-          (mstore (+ call-data 0x04) (sha3 node-bytes 32))
-
-          ;; Call owner(bytes32).
-          (mstore return-code (call (- (gas) 1000) 0 @@ens-registry
-              call-data 36 return-data 32))
-
-          ;; If the call failed or the caller isn't the current node owner,
-          ;; throw an exception.
-          (when (or (= @return-code false) (!= @return-data (caller)))
-            (jump invalid-location))
 
           ;; Set up the call data.
           (mstore (+ call-data 0x00) (pad-right set-subnode-owner))
