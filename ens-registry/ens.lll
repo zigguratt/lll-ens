@@ -28,8 +28,8 @@
       (when (= function-id ens-registry)
         (seq only-owner
 
-          ;; Input parameters to this function.
-          (def 'root-owner (calldataload 0x04)) ; Owner of the root node.
+          ;; Define input parameters to this function.
+          (def 'root-owner (calldataload 0x04))
 
           ;; Set ownership of root node by storing passed-in address.
           (sstore (+ records owner) root-owner)
