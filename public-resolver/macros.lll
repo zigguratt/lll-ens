@@ -10,11 +10,11 @@
   (def 'true  1)
   (def 'false 0)
 
-  ;; Memory (0x00 is used by logging).
-  (def 'call-result 0x20)
-  (def 'return-code 0x40)
-  (def 'return-data 0x60)
-  (def 'call-data   0x80)
+  ;; Memory.
+  (def 'call-result 0x00)
+  (def 'return-code 0x20)
+  (def 'return-data 0x40)
+  (def 'call-data   0x60)
 
   ;; Storage.
   (def 'contract-owner 0x00)
