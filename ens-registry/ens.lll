@@ -68,8 +68,8 @@
           (return call-result 32)))
 
       ;; ----------------------------------------------------------------------
-      ;; @notice Transfers ownership of a node to a new address.
-      ;;         May only be called by the current owner of the node.
+      ;; @notice Transfers ownership of a node to a new address. May only be
+      ;;         called by the current owner of the node.
       ;; @dev setOwner(bytes32,address)
       ;; @param node The node to transfer ownership of.
       ;; @param new-owner The address of the new owner.
@@ -92,8 +92,8 @@
           (stop)))
 
       ;; ----------------------------------------------------------------------
-      ;; @notice Transfers ownership of a subnode to a new address.
-      ;;         May only be called by the current owner of the node.
+      ;; @notice Transfers ownership of a subnode to a new address. May only be
+      ;;         called by the current owner of the node.
       ;; @dev setSubnodeOwner(bytes32,bytes32,address)
       ;; @param node The parent node.
       ;; @param label The hash of the label specifying the subnode.
