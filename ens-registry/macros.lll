@@ -35,14 +35,13 @@
 
   ;; --------------------------------------------------------------------------
   ;; @notice Extracts the four leftmost bytes of input.
-  ;; @param input A long number
+  ;; @param input A long number.
 
   (def 'bytes4 (input)
     (div input (exp 2 224)))
 
   ;; --------------------------------------------------------------------------
-  ;; @notice Retrieves the requested function ID from the first four bytes of
-  ;; the call data.
+  ;; @notice Retrieves function ID from the first four bytes of the call data.
 
   (def 'function-id
     (bytes4 (calldataload 0x00)))

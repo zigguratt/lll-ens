@@ -34,7 +34,7 @@
 
   ;; --------------------------------------------------------------------------
   ;; @notice Extracts the four leftmost bytes of input.
-  ;; @param input A long number
+  ;; @param input A long number.
 
   (def 'bytes4 (input)
     (div input (exp 2 224)))

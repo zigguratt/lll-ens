@@ -41,14 +41,14 @@
 
   ;; --------------------------------------------------------------------------
   ;; @notice Extracts the four leftmost bytes of input.
-  ;; @param input A long number
+  ;; @param input A long number.
 
   (def 'bytes4 (input)
     (div input (exp 2 224)))
 
   ;; --------------------------------------------------------------------------
   ;; @notice Pads the input so it's the leftmost four bytes of the result.
-  ;; @param input A short hash
+  ;; @param input A short hash.
 
   (def 'pad-right (input)
     (mul input (exp 2 224)))
