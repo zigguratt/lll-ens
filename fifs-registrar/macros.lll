@@ -1,5 +1,6 @@
 ;;; ---------------------------------------------------------------------------
-;;; Macros.
+;;; @title Macros for the FIFS registrar.
+;;; @author Daniel Ellison <daniel@syrinx.net>
 
 (seq
 
@@ -32,38 +33,34 @@
   (def 'invalid-location 0x02)
 
   ;; --------------------------------------------------------------------------
-  ;; Extracts the four leftmost bytes of input.
-  ;;
+  ;; @notice Extracts the four leftmost bytes of input.
   ;; @param input A long number
 
   (def 'bytes4 (input)
     (div input (exp 2 224)))
 
   ;; --------------------------------------------------------------------------
-  ;; Pads the input so it's the leftmost four bytes of the result.
-  ;;
-  ;; @param input A short hash
+  ;; @notice Pads the input so it's the leftmost four bytes of the result.
+  ;; @param input A short hash.
 
   (def 'pad-right (input)
     (mul input (exp 2 224)))
 
   ;; --------------------------------------------------------------------------
-  ;; Retrieves the requested function ID from the first four bytes of
-  ;; the call data.
+  ;; @notice Retrieves function ID from the first four bytes of the call data.
 
   (def 'function-id
     (bytes4 (calldataload 0x00)))
 
   ;; --------------------------------------------------------------------------
-  ;; Check that the caller is the contract owner.
+  ;; @notice Checks that the caller is the contract owner.
 
   (def 'only-owner
     (when (!= (caller) @@contract-owner)
       (jump invalid-location)))
 
   ;; --------------------------------------------------------------------------
-  ;; Check that the caller is the subnode owner.
-  ;;
+  ;; @notice Checks that the caller is the subnode owner.
   ;; @param subnode Check owner of this subnode.
 
   (def 'only-owner (subnode)

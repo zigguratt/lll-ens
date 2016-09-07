@@ -1,5 +1,6 @@
 ;;; ---------------------------------------------------------------------------
-;;; Macros.
+;;; @title Macros for the public resolver.
+;;; @author Daniel Ellison <daniel@syrinx.net>
 
 (seq
 
@@ -39,39 +40,34 @@
   (def 'invalid-location 0x02)
 
   ;; --------------------------------------------------------------------------
-  ;; Extracts the four leftmost bytes of input.
-  ;;
+  ;; @notice Extracts the four leftmost bytes of input.
   ;; @param input A long number
 
   (def 'bytes4 (input)
     (div input (exp 2 224)))
 
   ;; --------------------------------------------------------------------------
-  ;; Pads the input so it's the leftmost four bytes of the result.
-  ;;
+  ;; @notice Pads the input so it's the leftmost four bytes of the result.
   ;; @param input A short hash
 
   (def 'pad-right (input)
     (mul input (exp 2 224)))
 
   ;; --------------------------------------------------------------------------
-  ;; Retrieves the requested function ID from the first four bytes of
-  ;; the call data.
+  ;; @notice Retrieves function ID from the first four bytes of the call data.
 
   (def 'function-id
     (bytes4 (calldataload 0x00)))
 
   ;; --------------------------------------------------------------------------
-  ;; Returns any address for node passed in.
-  ;;
+  ;; @notice Returns any address for node passed in.
   ;; @param node Return the address for this node.
 
   (def 'get-address (node)
     (sload (+ addresses node)))
 
   ;; --------------------------------------------------------------------------
-  ;; Stores the address for the node passed in.
-  ;;
+  ;; @notice Stores the address for the node passed in.
   ;; @param node Set the address for this node.
   ;; @param addr The address to set.
 
@@ -79,16 +75,14 @@
     (sstore (+ addresses node) addr))
 
   ;; --------------------------------------------------------------------------
-  ;; Returns the content hash for the node passed in.
-  ;;
+  ;; @notice Returns the content hash for the node passed in.
   ;; @param node Return the content for this node.
 
   (def 'get-content (node)
     (sload (+ contents node)))
 
   ;; --------------------------------------------------------------------------
-  ;; Stores the content hash for the node passed in.
-  ;;
+  ;; @notice Stores the content hash for the node passed in.
   ;; @param node Set the content hash for this node.
   ;; @param content The content hash to set.
 
@@ -96,15 +90,14 @@
     (sstore (+ contents node) content))
 
   ;; --------------------------------------------------------------------------
-  ;; Check that the caller is the contract owner.
+  ;; @notice Checks that the caller is the contract owner.
 
   (def 'only-owner
     (when (!= (caller) @@contract-owner)
       (jump invalid-location)))
 
   ;; --------------------------------------------------------------------------
-  ;; Check that the caller is the node owner.
-  ;;
+  ;; @notice Checks that the caller is the node owner.
   ;; @param node Check owner of this node.
 
   (def 'only-owner (node)

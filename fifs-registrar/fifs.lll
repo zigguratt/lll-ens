@@ -1,15 +1,13 @@
 ;;; ---------------------------------------------------------------------------
-;;; A registrar that allocates subdomains to the first person to claim them.
+;;; @title A registrar that allocates subdomains to the first claimant.
+;;; @author Daniel Ellison <daniel@syrinx.net>
 
 (seq
 
   ;; --------------------------------------------------------------------------
   ;; INIT
 
-  ;; Include macros.
   (include "macros.lll")
-
-  ;; Set up initial state.
   (sstore contract-owner (caller))
 
   ;; --------------------------------------------------------------------------
@@ -19,12 +17,10 @@
     (seq
 
       ;; ----------------------------------------------------------------------
-      ;; Initialize the FIFS registrar.
-      ;;
+      ;; @notice Initializes the FIFS registrar.
+      ;; @dev FIFSRegistrar(address,bytes32)
       ;; @param ens-address The address of the ENS registry.
       ;; @param node The node that this registrar administers.
-      ;;
-      ;; Signature: FIFSRegistrar(address,bytes32)
 
       (when (= function-id fifs-registrar)
         (seq only-owner
@@ -41,12 +37,10 @@
           (stop)))
 
       ;; ----------------------------------------------------------------------
-      ;; Register a name, or change the owner of an existing registration.
-      ;;
+      ;; @notice Registers a name or changes owner of an existing registration.
+      ;; @dev register(bytes32,address)
       ;; @param subnode The hash of the label to register.
       ;; @param owner The address of the new owner.
-      ;;
-      ;; Signature: register(bytes32,address)
 
       (when (= function-id register-name)
         (seq (only-owner (calldataload 0x04))
@@ -63,15 +57,15 @@
 
           ;; Call setSubnodeOwner(bytes32,bytes32,address). If the call failed,
           ;; throw an exception.
-          (when (= (call (- (gas) 1000) 0 @@ens-registry
-              call-data 100 return-data 32) false)
+          (when (= false (call (- (gas) 1000) 0 @@ens-registry
+              call-data 100 return-data 32))
             (jump invalid-location))
 
           ;; Nothing to return.
           (stop)))
 
       ;; ----------------------------------------------------------------------
-      ;; Fallback: No functions matched the function ID provided.
+      ;; @notice Fallback: No functions matched the function ID provided.
 
       (jump invalid-location)))
 

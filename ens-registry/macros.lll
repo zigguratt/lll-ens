@@ -1,5 +1,6 @@
 ;;; ---------------------------------------------------------------------------
-;;; Macros.
+;;; @title Macros for the ENS registry.
+;;; @author Daniel Ellison <daniel@syrinx.net>
 
 (seq
 
@@ -33,31 +34,28 @@
   (def 'invalid-location 0x02)
 
   ;; --------------------------------------------------------------------------
-  ;; Extracts the four leftmost bytes of input.
-  ;;
+  ;; @notice Extracts the four leftmost bytes of input.
   ;; @param input A long number
 
   (def 'bytes4 (input)
     (div input (exp 2 224)))
 
   ;; --------------------------------------------------------------------------
-  ;; Retrieves the requested function ID from the first four bytes of
+  ;; @notice Retrieves the requested function ID from the first four bytes of
   ;; the call data.
 
   (def 'function-id
     (bytes4 (calldataload 0x00)))
 
   ;; --------------------------------------------------------------------------
-  ;; Calculates record location for node passed in.
-  ;;
+  ;; @notice Calculates record location for node passed in.
   ;; @param node Return the record location of this node.
 
   (def 'get-record (node)
       (+ records node))
 
   ;; --------------------------------------------------------------------------
-  ;; Calculates record location for node and label passed in.
-  ;;
+  ;; @notice Calculates record location for node and label passed in.
   ;; @param node The parent node.
   ;; @param label The hash of the subnode label.
 
@@ -68,31 +66,28 @@
       (+ records (sha3 node-bytes 64))))
 
   ;; --------------------------------------------------------------------------
-  ;; Retrieves owner from node record.
-  ;;
+  ;; @notice Retrieves owner from node record.
   ;; @param node Get owner of this node.
 
   (def 'get-owner (node)
     (sload (+ (get-record node) owner)))
 
   ;; --------------------------------------------------------------------------
-  ;; Retrieves resolver from node record.
-  ;;
+  ;; @notice Retrieves resolver from node record.
   ;; @param node Get resolver of this node.
 
   (def 'get-resolver (node)
     (sload (+ (get-record node) resolver)))
 
   ;; --------------------------------------------------------------------------
-  ;; Check that the caller is the contract owner.
+  ;; @notice Checks that the caller is the contract owner.
   
   (def 'only-owner
     (when (!= (caller) @@contract-owner)
       (jump invalid-location)))
 
   ;; --------------------------------------------------------------------------
-  ;; Check that the caller is the node owner.
-  ;;
+  ;; @notice Checks that the caller is the node owner.
   ;; @param node Check owner of this node.
 
   (def 'only-owner (node)
