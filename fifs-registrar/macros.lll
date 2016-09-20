@@ -78,9 +78,11 @@
       (mstore return-code (call (- (gas) 1000) 0 @@ens-registry
           call-data 36 return-data 32))
 
-      ;; If the call failed or the caller isn't the current subnode owner,
-      ;; throw an exception.
-      (when (or (= @return-code false) (!= @return-data (caller)))
+      ;; If the call failed or the caller isn't the current subnode owner, or
+      ;; indeed if there's no owner at all, throw an exception.
+      (when (or (= @return-code false)
+                (or (!= @return-data 0x00)
+                    (!= @return-data (caller))))
         (jump invalid-location))))
 
 )
