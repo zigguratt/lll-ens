@@ -24,7 +24,7 @@
   (def 'root-node      0x02)
 
   ;; Precomputed function IDs.
-  (def 'initialize  			0xbe13f47c) ; initialize(address,bytes32)
+  (def 'initialize        0xbe13f47c) ; initialize(address,bytes32)
   (def 'register-name     0xd22057a9) ; register(bytes32,address)
   (def 'get-node-owner    0x02571be3) ; owner(bytes32)
   (def 'set-subnode-owner 0x06ab5923) ; setSubnodeOwner(bytes32,bytes32,address)
