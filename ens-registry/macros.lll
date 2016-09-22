@@ -16,7 +16,7 @@
   (def 'contract-owner 0x00)
 
   ;; Precomputed function IDs.
-  (def 'ens-registry      0x19a17468) ; ENS(address)
+  (def 'initialize        0xc4d66de8) ; initialize(address)
   (def 'get-node-owner    0x02571be3) ; owner(bytes32)
   (def 'get-node-resolver 0x0178b8bf) ; resolver(bytes32)
   (def 'set-node-owner    0x5b0fc9c3) ; setOwner(bytes32,address)
@@ -54,7 +54,7 @@
       (+ records node))
 
   ;; --------------------------------------------------------------------------
-  ;; @notice Calculates record location for node and label passed in.
+  ;; @notice Calculates record location for the node and label passed in.
   ;; @param node The parent node.
   ;; @param label The hash of the subnode label.
 

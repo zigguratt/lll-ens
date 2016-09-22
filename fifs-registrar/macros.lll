@@ -24,7 +24,7 @@
   (def 'root-node      0x02)
 
   ;; Precomputed function IDs.
-  (def 'fifs-registrar    0x9d063ed8) ; FIFSRegistrar(address,bytes32)
+  (def 'initialize  			0xbe13f47c) ; initialize(address,bytes32)
   (def 'register-name     0xd22057a9) ; register(bytes32,address)
   (def 'get-node-owner    0x02571be3) ; owner(bytes32)
   (def 'set-subnode-owner 0x06ab5923) ; setSubnodeOwner(bytes32,bytes32,address)
@@ -63,7 +63,7 @@
   ;; @notice Checks that the caller is the subnode owner.
   ;; @param subnode Check owner of this subnode.
 
-  (def 'only-owner (subnode)
+  (def 'only-subnode-owner (subnode)
     (seq
 
       ;; Store the components of the node for upcoming sha3.
@@ -72,7 +72,7 @@
 
       ;; Set up the call data.
       (mstore (+ call-data 0x00) (pad-right get-node-owner))
-      (mstore (+ call-data 0x04) (sha3 node-bytes 32))
+      (mstore (+ call-data 0x04) (sha3 node-bytes 64))
 
       ;; Call owner(bytes32).
       (mstore return-code (call (- (gas) 1000) 0 @@ens-registry

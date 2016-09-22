@@ -18,11 +18,11 @@
 
       ;; ----------------------------------------------------------------------
       ;; @notice Initializes the FIFS registrar.
-      ;; @dev FIFSRegistrar(address,bytes32)
+      ;; @dev Signature: initialize(address,bytes32)
       ;; @param ens-address The address of the ENS registry.
       ;; @param node The node that this registrar administers.
 
-      (when (= function-id fifs-registrar)
+      (when (= function-id initialize)
         (seq only-owner
 
           ;; Define input parameters to this function.
@@ -38,12 +38,12 @@
 
       ;; ----------------------------------------------------------------------
       ;; @notice Registers a name or changes owner of an existing registration.
-      ;; @dev register(bytes32,address)
+      ;; @dev Signature: register(bytes32,address)
       ;; @param subnode The hash of the label to register.
       ;; @param owner The address of the new owner.
 
       (when (= function-id register-name)
-        (seq (only-owner (calldataload 0x04))
+        (seq (only-subnode-owner (calldataload 0x04))
 
           ;; Define input parameters to this function.
           (def 'subnode (calldataload 0x04))
@@ -58,7 +58,7 @@
           ;; Call setSubnodeOwner(bytes32,bytes32,address). If the call failed,
           ;; throw an exception.
           (when (= false (call (- (gas) 1000) 0 @@ens-registry
-              call-data 100 return-data 32))
+              call-data 100 return-data 0))
             (jump invalid-location))
 
           ;; Nothing to return.

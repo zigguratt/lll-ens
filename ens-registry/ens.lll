@@ -18,10 +18,10 @@
 
       ;; ----------------------------------------------------------------------
       ;; @notice Initializes the ENS registry.
-      ;; @dev ENS(address)
+      ;; @dev Signature: initialize(address)
       ;; @param root-owner Address of the root node owner.
 
-      (when (= function-id ens-registry)
+      (when (= function-id initialize)
         (seq only-owner
 
           ;; Define input parameters to this function.
@@ -35,7 +35,7 @@
 
       ;; ----------------------------------------------------------------------
       ;; @notice Returns the address that owns the specified node.
-      ;; @dev owner(bytes32)
+      ;; @dev Signature: owner(bytes32)
       ;; @param node Return this node's owner.
       ;; @return The associated address.
 
@@ -53,7 +53,7 @@
 
       ;; ----------------------------------------------------------------------
       ;; @notice Returns the address of the resolver for the specified node.
-      ;; @dev resolver(bytes32)
+      ;; @dev Signature: resolver(bytes32)
       ;; @param node Return this node's resolver.
       ;; @return The associated resolver.
 
@@ -72,7 +72,7 @@
       ;; ----------------------------------------------------------------------
       ;; @notice Transfers ownership of a node to a new address. May only be
       ;;         called by the current owner of the node.
-      ;; @dev setOwner(bytes32,address)
+      ;; @dev Signature: setOwner(bytes32,address)
       ;; @param node The node to transfer ownership of.
       ;; @param new-owner The address of the new owner.
 
@@ -87,6 +87,7 @@
           (sstore (+ (get-record node) owner) new-owner)
 
           ;; Emit an event about the transfer.
+          ;; Transfer(bytes32 indexed node, address owner);
           (log2 new-owner 32
               (sha3 0x00 (lit 0x00 "Transfer(bytes32,address)")) node)
 
@@ -95,8 +96,8 @@
 
       ;; ----------------------------------------------------------------------
       ;; @notice Transfers ownership of a subnode to a new address. May only be
-      ;;         called by the current owner of the node.
-      ;; @dev setSubnodeOwner(bytes32,bytes32,address)
+      ;;         called by the owner of the parent node.
+      ;; @dev Signature: setSubnodeOwner(bytes32,bytes32,address)
       ;; @param node The parent node.
       ;; @param label The hash of the label specifying the subnode.
       ;; @param new-owner The address of the new owner.
@@ -113,6 +114,7 @@
           (sstore (+ (get-record node label) owner) new-owner)
 
           ;; Emit an event about the transfer.
+          ;; NewOwner(bytes32 indexed node, bytes32 indexed label, address owner);
           (log3 new-owner 32
               (sha3 0x00 (lit 0x00 "NewOwner(bytes32,bytes32,address)"))
               node label)
@@ -122,7 +124,7 @@
 
       ;; ----------------------------------------------------------------------
       ;; @notice Sets the resolver address for the specified node.
-      ;; @dev setResolver(bytes32,address)
+      ;; @dev Signature: setResolver(bytes32,address)
       ;; @param node The node to update.
       ;; @param new-resolver The address of the resolver.
 
@@ -137,6 +139,7 @@
           (sstore (+ (get-record node) resolver) new-resolver)
 
           ;; Emit an event about the change of resolver.
+          ;; NewResolver(bytes32 indexed node, address resolver);
           (log2 new-resolver 32
               (sha3 0x00 (lit 0x00 "NewResolver(bytes32,address)")) node)
 
