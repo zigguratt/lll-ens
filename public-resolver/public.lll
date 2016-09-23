@@ -50,8 +50,8 @@
 
           ;; Do the required comparisons and save for return.
           (mstore call-result
-            (or (and (= kind "addr") (!= (get-address node) 0))
-                (and (= kind "content") (!= (get-content node) 0))))
+            (|| (&& (= kind "addr") (!= (get-address node) 0))
+                (&& (= kind "content") (!= (get-content node) 0))))
 
           ;; Return boolean result.
           (return call-result 32)))
