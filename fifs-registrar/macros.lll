@@ -80,9 +80,9 @@
 
       ;; If the call failed or the caller isn't the current subnode owner, or
       ;; indeed if there's no owner at all, throw an exception.
-      (when (or (= @return-code false)
-                (or (!= @return-data 0x00)
-                    (!= @return-data (caller))))
+      (when (|| (= @return-code false)
+                (!= @return-data 0x00)
+                (!= @return-data (caller)))
         (jump invalid-location))))
 
 )

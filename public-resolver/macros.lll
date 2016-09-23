@@ -30,10 +30,10 @@
   (def 'set-content-hash 0xc3d014d6) ; setContent(bytes32,bytes32)
   (def 'get-node-owner   0x02571be3) ; owner(bytes32)
 
-  ;; Addresses mapping: web3.sha3("addresses")
+  ;; Mapping: web3.sha3("addresses")
   (def 'addresses 0x4210e5b5e314de2f302893e9e54a8d74cdb13aabc4483e34a1abb30c0ae64e1b)
 
-  ;; Contents mapping: web3.sha3("contents")
+  ;; Mapping: web3.sha3("contents")
   (def 'contents 0xe8ace4bef85e14b3ff826469acc0c7a31ad1ef11e69b3ddb728468c4258c4819)
 
   ;; Jumping here causes an EVM error.
@@ -113,7 +113,8 @@
 
       ;; If the call failed or the caller isn't the current node owner,
       ;; throw an exception.
-      (when (or (= @return-code false) (!= @return-data (caller)))
+      (when (|| (= @return-code false)
+                (!= @return-data (caller)))
         (jump invalid-location))))
 
 )
