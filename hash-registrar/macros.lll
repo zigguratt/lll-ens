@@ -1,0 +1,132 @@
+;;; ---------------------------------------------------------------------------
+;;; @title Macros for the hash registrar.
+;;; @author Daniel Ellison <daniel@syrinx.net>
+
+(seq
+
+  ;; --------------------------------------------------------------------------
+  ;; Constant definitions.
+
+  ;; Booleans.
+  (def 'true  1)
+  (def 'false 0)
+
+  ;; Memory.
+  (def 'node-bytes  0x00)
+  (def 'label-bytes 0x20)
+  (def 'new-auction 0x60)
+
+
+
+
+  (def 'return-code 0x40)
+  (def 'return-data 0x60)
+  (def 'call-result 0x80)
+  (def 'call-data   0xa0)
+
+  ;; Storage.
+  (def 'contract-owner 0x00)
+  (def 'ens-registry   0x01)
+  (def 'root-node      0x02)
+
+  ;; Precomputed function IDs.
+  (def 'initialize        0xbe13f47c) ; initialize(address,bytes32)
+  (def 'start-auction     0xede8acdb) ; startAuction(bytes32)
+
+  ;; mapping (bytes32 => entry) public entries;
+  (def 'entries 0x8f2d36c64f0e41b492558008af2823f16b3c0e2ad732adb4170cf1430baee1a6)
+
+  ;; mapping (bytes32 => Deed) public sealedBids;
+  (def 'sealed-bids 0x6c057e8a484416b0b8fa526b39d118274817ede3221068f144d8806ed9ddb2a7)
+
+  ;; Enum: mode
+  (def 'mode-open    0x00)
+  (def 'mode-auction 0x01)
+  (def 'mode-owned   0x02)
+
+  ;; Struct: entry
+  (def 'status            0x00) ; Mode
+  (def 'deed              0x01) ; Deed
+  (def 'registration-date 0x02) ; uint
+  (def 'value             0x03) ; uint
+  (def 'highest-bid       0x04) ; uint
+  (def 'last-renewed      0x05) ; uint
+  (def 'renewal-date      0x06) ; uint
+  (def 'average-price     0x07) ; uint
+
+  ;; Jumping here causes an EVM error.
+  (def 'invalid-location 0x02)
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Extracts the four leftmost bytes of input.
+  ;; @param input A long number.
+
+  (def 'bytes4 (input)
+    (div input (exp 2 224)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Pads the input so it's the leftmost four bytes of the result.
+  ;; @param input A short hash.
+
+  (def 'pad-right (input)
+    (mul input (exp 2 224)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Retrieves function ID from the first four bytes of the call data.
+
+  (def 'function-id
+    (bytes4 (calldataload 0x00)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Returns the larger of two numbers.
+
+  (def 'max (a b)
+    (if (> a b) a b))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Returns the smaller of two numbers.
+
+  (def 'min (a b)
+    (if (< a b) a b))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Returns an entry for hash passed in.
+  ;; @param hash Return the entry for this hash.
+
+  (def 'get-entry (hash)
+    (sload (+ entries hash)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Checks that the caller is the contract owner.
+
+  (def 'only-owner
+    (when (!= (caller) @@contract-owner)
+      (jump invalid-location)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Checks that the caller is the subnode owner.
+  ;; @param subnode Check owner of this subnode.
+
+  (def 'only-subnode-owner (subnode)
+    (seq
+
+      ;; Store the components of the node for upcoming sha3.
+      (mstore node-bytes @@root-node)
+      (mstore label-bytes subnode)
+
+      ;; Set up the call data.
+      (mstore (+ call-data 0x00) (pad-right get-node-owner))
+      (mstore (+ call-data 0x04) (sha3 node-bytes 64))
+
+      ;; Call owner(bytes32).
+      (mstore return-code (call (- (gas) 1000) 0 @@ens-registry
+          call-data 36 return-data 32))
+
+      ;; If the call failed or the caller isn't the current subnode owner, or
+      ;; indeed if there's no owner at all, throw an exception.
+      (when (|| (= @return-code false)
+                (!= @return-data 0x00)
+                (!= @return-data (caller)))
+        (jump invalid-location))))
+
+)

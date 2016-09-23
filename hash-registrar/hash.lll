@@ -1,0 +1,81 @@
+;;; ---------------------------------------------------------------------------
+;;; @title A hash registrar.
+;;; @author Daniel Ellison <daniel@syrinx.net>
+
+(seq
+
+  ;; --------------------------------------------------------------------------
+  ;; INIT
+
+  (include "macros.lll")
+  (sstore contract-owner (caller))
+
+  ;; --------------------------------------------------------------------------
+  ;; CODE
+
+  (returnlll
+    (seq
+
+      ;; ----------------------------------------------------------------------
+      ;; @notice Initializes the hash registrar.
+      ;; @dev Signature: initialize(address,bytes32)
+      ;; @param ens-address The address of the ENS registry.
+      ;; @param node The node that this registrar administers.
+
+      (when (= function-id initialize)
+        (seq only-owner
+
+          ;; Define input parameters to this function.
+          (def 'ens-address (calldataload 0x04))
+          (def 'node (calldataload 0x24))
+
+          ;; Store the "constructor" parameters.
+          (sstore ens-registry ens-address)
+          (sstore root-node node)
+
+          ;; Stop here; nothing to return.
+          (stop)))
+
+      ;; ----------------------------------------------------------------------
+      ;; @notice Start Auction for available hash.
+      ;;         Anyone can start an auction by sending an array of hashes that
+      ;;         they want to bid for. Arrays are sent so that someone can open
+      ;;         up an auction for X dummy hashes when they are only really
+      ;;         interested in bidding for one. This will increase the cost for
+      ;;         an attacker from simply bidding on all new auctions blindly.
+      ;;         Dummy auctions that are open but not bid on are closed after a
+      ;;         week. 
+      ;; @dev Signature: startAuction(bytes32)
+      ;; @param hash Auction this hash.
+
+      (when (= function-id start-auction)
+        (seq
+ 
+          ;; Define input parameters to this function.
+          (def 'hash (calldataload 0x04))
+
+          (mstore new-auction (get-entry hash))
+
+          (when (|| (&& (= mode-owned (sload (+ @new-auction status)))
+                        (< (timestamp) (sload (+ @new-auction renewal-date))))
+                    (&& (= mode-auction (sload (+ @new-auction status)))
+                        (< (timestamp) (sload (+ @new-auction registration-date)))))
+            (jump invalid-location))
+
+          (when (= mode-owned (sload (+ @new-auction status)))
+            (jump invalid-location))
+
+          ;; Emit an event about the auction start.
+          ;; AuctionStarted(bytes32 hash, uint auctionExpiryDate);
+          (log1 hash 32
+              (sha3 0x00 (lit 0x00 "AuctionStarted(bytes32,uint256)")))
+
+          ;; Nothing to return.
+          (stop)))
+
+      ;; ----------------------------------------------------------------------
+      ;; @notice Fallback: No functions matched the function ID provided.
+
+      (jump invalid-location)))
+
+)
