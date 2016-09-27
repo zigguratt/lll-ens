@@ -8,8 +8,6 @@ contract Deed;
 
 contract Registrar;
     function Registrar(address _ens, bytes32 _rootNode);
-    function max(uint a, uint b) internal constant returns (uint max);
-    function min(uint a, uint b) internal constant returns (uint min);
     function startAuction(bytes32 _hash);
     function startAuctions(bytes32[] _hashes);
     function shaBid(bytes32 hash, address owner, uint value, bytes32 salt) constant returns (bytes32 sealedBid);
