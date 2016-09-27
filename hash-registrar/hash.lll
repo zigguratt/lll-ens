@@ -1,14 +1,15 @@
-;;; ---------------------------------------------------------------------------
-;;; @title A hash registrar.
-;;; @author Daniel Ellison <daniel@syrinx.net>
-
-(seq
-
-  ;; --------------------------------------------------------------------------
-  ;; INIT
-
-  (include "macros.lll")
-  (sstore contract-owner (caller))
+  ;;; ---------------------------------------------------------------------------
+  ;;; @title A hash registrar.
+  ;;; @author Daniel Ellison <daniel@syrinx.net>
+  
+  (seq
+  
+    ;; --------------------------------------------------------------------------
+    ;; INIT
+  
+    (include "macros.lll")
+    (sstore contract-owner (caller))
+    (sstore average-price 1000000000000000000) ; 1 ether
 
   ;; --------------------------------------------------------------------------
   ;; CODE
@@ -32,6 +33,10 @@
           ;; Store the "constructor" parameters.
           (sstore ens-registry ens-address)
           (sstore root-node node)
+
+          ;; Initialize a couple of variables.
+          (sstore last-since-new-registry (timestamp))
+          (sstore registry-created (timestamp))
 
           ;; Stop here; nothing to return.
           (stop)))
@@ -63,7 +68,20 @@
             (jump invalid-location))
 
           (when (= mode-owned (sload (+ @new-auction status)))
-            (jump invalid-location))
+            (seq
+
+              ;; Set up the call data.
+              (mstore (+ call-data 0x00) (pad-right set-subnode-owner))
+              (mstore (+ call-data 0x04) @@root-node)
+              (mstore (+ call-data 0x24) hash)
+              (mstore (+ call-data 0x44) owner)
+
+              ;; Call setSubnodeOwner(bytes32,bytes32,address). If the call
+              ;; failed, throw an exception.
+              (when (= false (call (- (gas) 1000) 0 @@ens-registry
+                  call-data 100 return-data 0))
+                (jump invalid-location))
+            ))
 
           ;; Emit an event about the auction start.
           ;; AuctionStarted(bytes32 hash, uint auctionExpiryDate);

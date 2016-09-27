@@ -11,27 +11,38 @@
   (def 'true  1)
   (def 'false 0)
 
+  ;; Time constants.
+  (def 'auction-length 604800) ; 7 days
+  (def 'reveal-period 86400) ; 24 hours
+  (def 'renewal-period 31536000) ; 1 year
+  (def 'max-renewal-period 252288000) ; 8 years
+
+  (def 'multiplier 1000000)
+  (def 'min-ratio 100)
+
   ;; Memory.
   (def 'node-bytes  0x00)
   (def 'label-bytes 0x20)
-  (def 'new-auction 0x60)
+  (def 'new-auction 0x40)
 
-
-
-
-  (def 'return-code 0x40)
-  (def 'return-data 0x60)
-  (def 'call-result 0x80)
-  (def 'call-data   0xa0)
+  (def 'return-code 0x60)
+  (def 'return-data 0x80)
+  (def 'call-result 0xa0)
+  (def 'call-data   0xc0)
 
   ;; Storage.
-  (def 'contract-owner 0x00)
-  (def 'ens-registry   0x01)
-  (def 'root-node      0x02)
+  (def 'contract-owner          0x00)
+  (def 'ens-registry            0x01)
+  (def 'root-node               0x02)
+  (def 'average-price           0x03)
+  (def 'average-period          0x04)
+  (def 'last-since-new-registry 0x05)
+  (def 'registry-created        0x06)
 
   ;; Precomputed function IDs.
   (def 'initialize        0xbe13f47c) ; initialize(address,bytes32)
   (def 'start-auction     0xede8acdb) ; startAuction(bytes32)
+  (def 'set-subnode-owner 0x06ab5923) ; setSubnodeOwner(bytes32,bytes32,address)
 
   ;; mapping (bytes32 => entry) public entries;
   (def 'entries 0x8f2d36c64f0e41b492558008af2823f16b3c0e2ad732adb4170cf1430baee1a6)
