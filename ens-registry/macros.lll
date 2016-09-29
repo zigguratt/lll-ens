@@ -19,9 +19,11 @@
   (def 'initialize        0xc4d66de8) ; initialize(address)
   (def 'get-node-owner    0x02571be3) ; owner(bytes32)
   (def 'get-node-resolver 0x0178b8bf) ; resolver(bytes32)
+  (def 'get-node-ttl      0x16a25cbd) ; ttl(bytes32)
   (def 'set-node-owner    0x5b0fc9c3) ; setOwner(bytes32,address)
   (def 'set-subnode-owner 0x06ab5923) ; setSubnodeOwner(bytes32,bytes32,address)
   (def 'set-node-resolver 0x1896f70a) ; setResolver(bytes32,address)
+  (def 'set-node-ttl      0x14ab9038) ; setTTL(bytes32,uint64)
 
   ;; Mapping: web3.sha3("records")
   (def 'records 0x54f4360834cbc1e48233023b2ea917d7065a8175d3c2c80d0a81bce375047e79)
@@ -29,6 +31,7 @@
   ;; Struct: Record
   (def 'owner    0x00) ; address
   (def 'resolver 0x20) ; address
+  (def 'ttl      0x40) ; uint64
 
   ;; Jumping here causes an EVM error.
   (def 'invalid-location 0x02)
@@ -77,6 +80,13 @@
 
   (def 'get-resolver (node)
     (sload (+ (get-record node) resolver)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Retrieves TTL From node record.
+  ;; @param node Get TTL Of this node.
+
+  (def 'get-ttl (node)
+    (sload (+ (get-record node) ttl)))
 
   ;; --------------------------------------------------------------------------
   ;; @notice Checks that the caller is the contract owner.

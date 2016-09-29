@@ -70,6 +70,24 @@
           (return call-result 32)))
 
       ;; ----------------------------------------------------------------------
+      ;; @notice Returns the TTL of a node and any records associated with it.
+      ;; @dev Signature: ttl(bytes32)
+      ;; @param node Return this node's TTL.
+      ;; @return The node's TTL.
+
+      (when (= function-id get-node-ttl)
+        (seq
+
+          ;; Define input parameters to this function.
+          (def 'node (calldataload 0x04))
+
+          ;; Get the node's TTL and save it.
+          (mstore call-result (get-ttl node))
+
+          ;; Return result.
+          (return call-result 8)))
+
+      ;; ----------------------------------------------------------------------
       ;; @notice Transfers ownership of a node to a new address. May only be
       ;;         called by the current owner of the node.
       ;; @dev Signature: setOwner(bytes32,address)
@@ -142,6 +160,30 @@
           ;; NewResolver(bytes32 indexed node, address resolver);
           (log2 new-resolver 32
               (sha3 0x00 (lit 0x00 "NewResolver(bytes32,address)")) node)
+
+          ;; Nothing to return.
+          (stop)))
+
+      ;; ----------------------------------------------------------------------
+      ;; @notice Sets the TTL for the specified node.
+      ;; @dev Signature: setTTL(bytes32,uint64)
+      ;; @param node The node to update.
+      ;; @param ttl The TTL in seconds.
+
+      (when (= function-id set-node-ttl)
+        (seq (only-owner (calldataload 0x04))
+
+          ;; Define input parameters to this function.
+          (def 'node (calldataload 0x04))
+          (def 'new-ttl (calldataload 0x24))
+
+          ;; Set new TTL by storing passed-in time.
+          (sstore (+ (get-record node) ttl) new-ttl)
+
+          ;; Emit an event about the change of TTL.
+          ;; NewTTL(bytes32 indexed node, uint64 ttl);
+          (log2 new-ttl 32
+              (sha3 0x00 (lit 0x00 "NewTTL(bytes32,uint64)")) node)
 
           ;; Nothing to return.
           (stop)))
