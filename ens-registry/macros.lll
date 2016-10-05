@@ -83,7 +83,7 @@
 
   ;; --------------------------------------------------------------------------
   ;; @notice Retrieves TTL From node record.
-  ;; @param node Get TTL Of this node.
+  ;; @param node Get TTL of this node.
 
   (def 'get-ttl (node)
     (sload (+ (get-record node) ttl)))
