@@ -1,0 +1,69 @@
+;;; ---------------------------------------------------------------------------
+;;; @title The Deed is a contract intended simply to hold ether. It can be
+;;;        controlled only by the registrar and can only send ether back to
+;;;        the owner.
+;;; @author Daniel Ellison <daniel@syrinx.net>
+  
+  (seq
+  
+    ;; --------------------------------------------------------------------------
+    ;; INIT
+  
+    (include "macros.lll")
+    (sstore contract-owner (caller))
+
+  ;; --------------------------------------------------------------------------
+  ;; CODE
+
+  (returnlll
+    (seq
+
+      ;; ----------------------------------------------------------------------
+      ;; @notice Initializes the hash registrar.
+      ;; @dev Signature: initialize(address,bytes32)
+      ;; @param ens-address The address of the ENS registry.
+      ;; @param node The node that this registrar administers.
+
+      (when (= function-id initialize)
+        (seq only-owner
+
+          ;; Define input parameters to this function.
+          (def 'ens-address (calldataload 0x04))
+          (def 'node (calldataload 0x24))
+
+          ;; Store the "constructor" parameters.
+          (sstore ens-registry ens-address)
+          (sstore root-node node)
+
+          ;; Initialize a couple of variables.
+          (sstore last-since-new-registry (timestamp))
+          (sstore registry-created (timestamp))
+
+          ;; Stop here; nothing to return.
+          (stop)))
+
+      ;; ----------------------------------------------------------------------
+      ;; @notice Change the owner of this deed.
+      ;; @dev Signature: setOwner(address)
+      ;; @param new-owner The address of the new owner.
+
+      (when (= function-id set-owner)
+        (seq
+ 
+          ;; Define input parameters to this function.
+          (def 'new-owner (calldataload 0x04))
+
+          ;; Emit an event about the owner change.
+          ;; OwnerChanged(address newOwner);
+          (log1 new-owner 32
+              (sha3 0x00 (lit 0x00 "OwnerChanged(address)")))
+
+          ;; Nothing to return.
+          (stop)))
+
+      ;; ----------------------------------------------------------------------
+      ;; @notice Fallback: No functions matched the function ID provided.
+
+      (jump invalid-location)))
+
+)

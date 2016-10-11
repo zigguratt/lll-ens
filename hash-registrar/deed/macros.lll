@@ -7,30 +7,40 @@
   ;; --------------------------------------------------------------------------
   ;; Constant definitions.
 
-  ;; Booleans.
-  (def 'true  1)
+  ;; Boolean constants.
+  (def 'true 1)
   (def 'false 0)
 
   ;; Time constants.
-  (def 'auction-length 604800) ; 7 days
-  (def 'reveal-period 86400) ; 24 hours
-  (def 'renewal-period 31536000) ; 1 year
-  (def 'max-renewal-period 252288000) ; 8 years
+  (def 'one-day 86400)
+  (def 'one-week 604800)
+  (def 'one-year 31536000)
+  (def 'eight-years 252288000)
 
+  ;; Period constants.
+  (def 'reveal-period one-day)
+  (def 'auction-length one-week)
+  (def 'renewal-period one-year)
+  (def 'max-renewal-period eight-years)
+
+  ;; Niscellaneous constants.
   (def 'multiplier 1000000)
   (def 'min-ratio 100)
+  (def 'burn 0xdead)
 
-  ;; Memory.
+  ;; Memory offsets.
   (def 'node-bytes  0x00)
   (def 'label-bytes 0x20)
   (def 'new-auction 0x40)
 
+  ;; "call" memory offsets.
   (def 'return-code 0x60)
   (def 'return-data 0x80)
   (def 'call-result 0xa0)
   (def 'call-data   0xc0)
 
-  ;; Storage.
+  ;; Storage offsets.
+  (def 'contract-owner          0x00)
   (def 'contract-owner          0x00)
   (def 'ens-registry            0x01)
   (def 'root-node               0x02)
@@ -39,10 +49,13 @@
   (def 'last-since-new-registry 0x05)
   (def 'registry-created        0x06)
 
-  ;; Precomputed function IDs.
+  ;; Registrar function IDs.
   (def 'initialize        0xbe13f47c) ; initialize(address,bytes32)
   (def 'start-auction     0xede8acdb) ; startAuction(bytes32)
   (def 'set-subnode-owner 0x06ab5923) ; setSubnodeOwner(bytes32,bytes32,address)
+
+  ;; Deed function IDs.
+  (def 'set-owner         0x13af4035) ; setOwner(address)
 
   ;; mapping (bytes32 => entry) public entries;
   (def 'entries 0x8f2d36c64f0e41b492558008af2823f16b3c0e2ad732adb4170cf1430baee1a6)
@@ -106,6 +119,47 @@
 
   (def 'get-entry (hash)
     (sload (+ entries hash)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Calls another contract with no paramaters.
+
+  (def 'call0 (contract function return-size)
+    (seq
+      (mstore (+ call-data 0x00) (pad-right function))
+      (call (- (gas) 1000) 0 contract call-data 4 return-data return-size)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Calls another contract with one paramater.
+  ;; @dev Assumes 32-byte paramaters.
+
+  (def 'call1 (contract function p1 return-size)
+    (seq
+      (mstore (+ call-data 0x00) (pad-right function))
+      (mstore (+ call-data 0x04) p1)
+      (call (- (gas) 1000) 0 contract call-data 36 return-data return-size)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Calls another contract with two paramaters.
+  ;; @dev Assumes 32-byte paramaters.
+
+  (def 'call2 (contract function p1 p2 return-size)
+    (seq
+      (mstore (+ call-data 0x00) (pad-right function))
+      (mstore (+ call-data 0x04) p1)
+      (mstore (+ call-data 0x24) p2)
+      (call (- (gas) 1000) 0 contract call-data 68 return-data return-size)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Calls another contract with three paramaters.
+  ;; @dev Assumes 32-byte paramaters.
+
+  (def 'call3 (contract function p1 p2 p3 return-size)
+    (seq
+      (mstore (+ call-data 0x00) (pad-right function))
+      (mstore (+ call-data 0x04) p1)
+      (mstore (+ call-data 0x24) p2)
+      (mstore (+ call-data 0x44) p3)
+      (call (- (gas) 1000) 0 contract call-data 100 return-data return-size)))
 
   ;; --------------------------------------------------------------------------
   ;; @notice Checks that the caller is the contract owner.
