@@ -48,8 +48,8 @@
       ;;         up an auction for X dummy hashes when they are only really
       ;;         interested in bidding for one. This will increase the cost for
       ;;         an attacker from simply bidding on all new auctions blindly.
-      ;;         Dummy auctions that are open but not bid on are closed after a
-      ;;         week. 
+      ;;         Dummy auctions that are open but not bid on are closed after
+      ;;         a week. 
       ;; @dev Signature: startAuction(bytes32)
       ;; @param hash Auction this hash.
 
@@ -69,19 +69,11 @@
 
           (when (= mode-owned (sload (+ @new-auction status)))
             (seq
-
-              ;; Set up the call data.
-              (mstore (+ call-data 0x00) (pad-right set-subnode-owner))
-              (mstore (+ call-data 0x04) @@root-node)
-              (mstore (+ call-data 0x24) hash)
-              (mstore (+ call-data 0x44) owner)
-
               ;; Call setSubnodeOwner(bytes32,bytes32,address). If the call
               ;; failed, throw an exception.
-              (when (= false (call (- (gas) 1000) 0 @@ens-registry
-                  call-data 100 return-data 0))
-                (jump invalid-location))
-            ))
+              (when (= false (call3 @@ens-registry set-subnode-owner
+                  @@root-node hash owner 0))
+                (jump invalid-location))))
 
           ;; Emit an event about the auction start.
           ;; AuctionStarted(bytes32 hash, uint auctionExpiryDate);

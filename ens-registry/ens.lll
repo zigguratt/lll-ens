@@ -95,7 +95,7 @@
       ;; @param new-owner The address of the new owner.
 
       (when (= function-id set-node-owner)
-        (seq (only-owner (calldataload 0x04))
+        (seq (only-node-owner (calldataload 0x04))
 
           ;; Define input parameters to this function.
           (def 'node (calldataload 0x04))
@@ -121,7 +121,7 @@
       ;; @param new-owner The address of the new owner.
 
       (when (= function-id set-subnode-owner)
-        (seq (only-owner (calldataload 0x04))
+        (seq (only-node-owner (calldataload 0x04))
 
           ;; Define input parameters to this function.
           (def 'node (calldataload 0x04))
@@ -147,7 +147,7 @@
       ;; @param new-resolver The address of the resolver.
 
       (when (= function-id set-node-resolver)
-        (seq (only-owner (calldataload 0x04))
+        (seq (only-node-owner (calldataload 0x04))
 
           ;; Define input parameters to this function.
           (def 'node (calldataload 0x04))
@@ -171,7 +171,7 @@
       ;; @param ttl The TTL in seconds.
 
       (when (= function-id set-node-ttl)
-        (seq (only-owner (calldataload 0x04))
+        (seq (only-node-owner (calldataload 0x04))
 
           ;; Define input parameters to this function.
           (def 'node (calldataload 0x04))

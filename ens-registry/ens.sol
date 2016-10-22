@@ -1,5 +1,7 @@
 contract ENS {
-    function ENS(address owner);
+
+	// Functions.
+    function initialize(address owner);
     function owner(bytes32 node) constant returns(address);
     function resolver(bytes32 node) constant returns(address);
     function ttl(bytes32 node) constant returns(uint64);
@@ -7,4 +9,10 @@ contract ENS {
     function setSubnodeOwner(bytes32 node, bytes32 label, address owner);
     function setResolver(bytes32 node, address resolver);
     function setTTL(bytes32 node, uint64 ttl);
+
+    // Events.
+    event Transfer(bytes32 indexed node, address owner);
+    event NewOwner(bytes32 indexed node, bytes32 indexed label, address owner);
+    event NewResolver(bytes32 indexed node, address resolver);
+    event NewTTL(bytes32 indexed node, uint64 ttl);
 }
