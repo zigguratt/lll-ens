@@ -25,16 +25,11 @@
   (def 'initialize       0xc4d66de8) ; initialize(address)
   (def 'has-record-type  0x41b9dc2b) ; has(bytes32,bytes32)
   (def 'get-node-address 0x3b3b57de) ; addr(bytes32)
-  (def 'get-content-hash 0x2dff6941) ; content(bytes32)
   (def 'set-node-address 0xd5fa2b00) ; setAddr(bytes32,address)
-  (def 'set-content-hash 0xc3d014d6) ; setContent(bytes32,bytes32)
   (def 'get-node-owner   0x02571be3) ; owner(bytes32)
 
   ;; Mapping: web3.sha3("addresses")
   (def 'addresses 0x4210e5b5e314de2f302893e9e54a8d74cdb13aabc4483e34a1abb30c0ae64e1b)
-
-  ;; Mapping: web3.sha3("contents")
-  (def 'contents 0xe8ace4bef85e14b3ff826469acc0c7a31ad1ef11e69b3ddb728468c4258c4819)
 
   ;; Jumping here causes an EVM error.
   (def 'invalid-location 0x02)
@@ -75,21 +70,6 @@
     (sstore (+ addresses node) addr))
 
   ;; --------------------------------------------------------------------------
-  ;; @notice Returns the content hash for the node passed in.
-  ;; @param node Return the content for this node.
-
-  (def 'get-content (node)
-    (sload (+ contents node)))
-
-  ;; --------------------------------------------------------------------------
-  ;; @notice Stores the content hash for the node passed in.
-  ;; @param node Set the content hash for this node.
-  ;; @param content The content hash to set.
-
-  (def 'set-content (node content)
-    (sstore (+ contents node) content))
-
-  ;; --------------------------------------------------------------------------
   ;; @notice Checks that the caller is the contract owner.
 
   (def 'only-owner
@@ -113,8 +93,7 @@
 
       ;; If the call failed or the caller isn't the current node owner,
       ;; throw an exception.
-      (when (|| (= @return-code false)
-                (!= @return-data (caller)))
+      (when (|| (= @return-code false) (!= @return-data (caller)))
         (jump invalid-location))))
 
 )

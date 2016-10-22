@@ -19,7 +19,7 @@
       ;; ----------------------------------------------------------------------
       ;; @notice Initializes the public resolver.
       ;; @dev Signature: initialize(address)
-      ;; @param ens-address The address of the ENS registry.
+      ;; @param ens-address The ENS registrar contract.
 
       (when (= function-id initialize)
         (seq only-owner
@@ -48,10 +48,8 @@
           (def 'node (calldataload 0x04))
           (def 'kind (calldataload 0x24))
 
-          ;; Do the required comparisons and save for return.
-          (mstore call-result
-            (|| (&& (= kind "addr") (!= (get-address node) 0))
-                (&& (= kind "content") (!= (get-content node) 0))))
+          ;; Do the required comparison and save for return.
+          (mstore call-result (&& (= kind "addr") (!= (get-address node) 0)))
 
           ;; Return boolean result.
           (return call-result 32)))
@@ -78,27 +76,6 @@
           (return call-result 32)))
 
       ;; ----------------------------------------------------------------------
-      ;; @notice Returns the content hash associated with an ENS node.
-      ;; @dev Signature: content(bytes32)
-      ;; @param node The ENS node to query.
-      ;; @return The associated content hash.
-
-      (when (= function-id get-content-hash)
-        (seq
-
-          ;; Define input parameters to this function.
-          (def 'node (calldataload 0x04))
-
-          ;; Retrieve the node's content hash.
-          (mstore call-result (get-content node))
-
-          (when (= @call-result 0)
-            (jump invalid-location))
-
-          ;; Return result.
-          (return call-result 32)))
-
-      ;; ----------------------------------------------------------------------
       ;; @notice Sets the address associated with an ENS node. May only be
       ;;         called by the owner of that node in the ENS registry.
       ;; @dev Signature: setAddr(bytes32,address)
@@ -114,26 +91,6 @@
 
           ;; Store the node's new address.
           (set-address node addr)
-
-          ;; Stop here; nothing to return.
-          (stop)))
-
-      ;; ----------------------------------------------------------------------
-      ;; @notice Sets the content hash associated with an ENS node. May only be
-      ;;         called by the owner of that node in the ENS registry.
-      ;; @dev Signature: setContent(bytes32,bytes32)
-      ;; @param node The node to update.
-      ;; @param content The content hash to set.
-
-      (when (= function-id set-content-hash)
-        (seq (only-node-owner (calldataload 0x04))
-
-          ;; Define input parameters to this function.
-          (def 'node (calldataload 0x04))
-          (def 'content (calldataload 0x24))
-
-          ;; Store the node's new content.
-          (set-content node content)
 
           ;; Stop here; nothing to return.
           (stop)))
