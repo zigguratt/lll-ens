@@ -1,15 +1,15 @@
-  ;;; ---------------------------------------------------------------------------
-  ;;; @title A hash registrar.
-  ;;; @author Daniel Ellison <daniel@syrinx.net>
+;;; ---------------------------------------------------------------------------
+;;; @title A hash registrar.
+;;; @author Daniel Ellison <daniel@syrinx.net>
   
-  (seq
-  
-    ;; --------------------------------------------------------------------------
-    ;; INIT
-  
-    (include "macros.lll")
-    (sstore contract-owner (caller))
-    (sstore average-price 1000000000000000000) ; 1 ether
+(seq
+
+  ;; --------------------------------------------------------------------------
+  ;; INIT
+
+  (include "macros.lll")
+  (sstore contract-owner (caller))
+  (sstore average-price 1000000000000000000) ; 1 ether
 
   ;; --------------------------------------------------------------------------
   ;; CODE
