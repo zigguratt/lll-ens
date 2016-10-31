@@ -22,7 +22,7 @@
       ;; @param ens-address The address of the ENS registry.
       ;; @param node The node that this registrar administers.
 
-      (when (= function-id initialize)
+      (function initialize
         (seq only-owner
 
           ;; Define input parameters to this function.
@@ -42,7 +42,7 @@
       ;; @param subnode The hash of the label to register.
       ;; @param owner The address of the new owner.
 
-      (when (= function-id register-name)
+      (function register-name
         (seq (only-subnode-owner (calldataload 0x04))
 
           ;; Define input parameters to this function.
@@ -50,7 +50,7 @@
           (def 'owner (calldataload 0x24))
 
           ;; Set up the call data.
-          (mstore (+ call-data 0x00) (pad-right set-subnode-owner))
+          (mstore (+ call-data 0x00) (shift-left set-subnode-owner))
           (mstore (+ call-data 0x04) @@root-node)
           (mstore (+ call-data 0x24) subnode)
           (mstore (+ call-data 0x44) owner)

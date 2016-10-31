@@ -33,24 +33,49 @@
   (def 'invalid-location 0x02)
 
   ;; --------------------------------------------------------------------------
+  ;; @notice Shifts the rightmost 4 bytes of <input> left by 28 bytes.
+  ;; @param input A 32-byte number.
+
+  (def 'shift-left (input)
+    (mul input (exp 2 224)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Shifts the leftmost 4 bytes of <input> right by 28 bytes.
+  ;; @param input A 32-byte number.
+
+  (def 'shift-right (input)
+    (div input (exp 2 224)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Determines whether the supplied function ID matches a known
+  ;;         function hash and executes <code-body> if so.
+  ;; @dev The function ID is in the leftmost four bytes of the call data.
+  ;; @param function-hash The four-byte hash of a known function signature.
+  ;; @param code-body The code to run in the case of a match.
+
+  (def 'function (function-hash code-body)
+    (when (= (shift-right (calldataload 0x00)) function-hash)
+      code-body))
+
+  ;; --------------------------------------------------------------------------
   ;; @notice Extracts the four leftmost bytes of input.
   ;; @param input A long number.
 
-  (def 'bytes4 (input)
+  (def 'shift-right (input)
     (div input (exp 2 224)))
 
   ;; --------------------------------------------------------------------------
   ;; @notice Pads the input so it's the leftmost four bytes of the result.
   ;; @param input A short hash.
 
-  (def 'pad-right (input)
+  (def 'shift-left (input)
     (mul input (exp 2 224)))
 
   ;; --------------------------------------------------------------------------
   ;; @notice Retrieves function ID from the first four bytes of the call data.
 
   (def 'function-id
-    (bytes4 (calldataload 0x00)))
+    (shift-right (calldataload 0x00)))
 
   ;; --------------------------------------------------------------------------
   ;; @notice Checks that the caller is the contract owner.
@@ -71,7 +96,7 @@
       (mstore label-bytes subnode)
 
       ;; Set up the call data.
-      (mstore (+ call-data 0x00) (pad-right get-node-owner))
+      (mstore (+ call-data 0x00) (shift-left get-node-owner))
       (mstore (+ call-data 0x04) (sha3 node-bytes 64))
 
       ;; Call owner(bytes32).

@@ -24,7 +24,7 @@
       ;; @param ens-address The address of the ENS registry.
       ;; @param node The node that this registrar administers.
 
-      (when (= function-id initialize)
+      (function initialize
         (seq only-owner
 
           ;; Define input parameters to this function.
@@ -47,7 +47,7 @@
       ;; @dev Signature: setOwner(address)
       ;; @param new-owner The address of the new owner.
 
-      (when (= function-id set-owner)
+      (function set-owner
         (seq
  
           ;; Define input parameters to this function.

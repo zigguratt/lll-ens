@@ -21,7 +21,7 @@
       ;; @dev Signature: initialize(address)
       ;; @param ens-address The ENS registrar contract.
 
-      (when (= function-id initialize)
+      (function initialize
         (seq only-owner
 
           ;; Define input parameters to this function.
@@ -41,7 +41,7 @@
       ;; @return True if this resolver has a record of the provided type on the
       ;;         provided node.
 
-      (when (= function-id has-record-type)
+      (function has-record-type
         (seq
 
           ;; Define input parameters to this function.
@@ -60,7 +60,7 @@
       ;; @param node The ENS node to query.
       ;; @return The associated address.
 
-      (when (= function-id get-node-address)
+      (function get-node-address
         (seq
 
           ;; Define input parameters to this function.
@@ -82,7 +82,7 @@
       ;; @param node The node to update.
       ;; @param addr The address to set.
 
-      (when (= function-id set-node-address)
+      (function set-node-address
         (seq (only-node-owner (calldataload 0x04))
 
           ;; Define input parameters to this function.

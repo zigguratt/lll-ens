@@ -21,7 +21,7 @@
       ;; @dev Signature: initialize(address)
       ;; @param root-owner Address of the root node owner.
 
-      (when (= function-id initialize)
+      (function initialize
         (seq only-owner
 
           ;; Define input parameters to this function.
@@ -39,7 +39,7 @@
       ;; @param node Return this node's owner.
       ;; @return The associated address.
 
-      (when (= function-id get-node-owner)
+      (function get-node-owner
         (seq
 
           ;; Define input parameters to this function.
@@ -57,7 +57,7 @@
       ;; @param node Return this node's resolver.
       ;; @return The associated resolver.
 
-      (when (= function-id get-node-resolver)
+      (function get-node-resolver
         (seq
 
           ;; Define input parameters to this function.
@@ -75,7 +75,7 @@
       ;; @param node Return this node's TTL.
       ;; @return The node's TTL.
 
-      (when (= function-id get-node-ttl)
+      (function get-node-ttl
         (seq
 
           ;; Define input parameters to this function.
@@ -94,7 +94,7 @@
       ;; @param node The node to transfer ownership of.
       ;; @param new-owner The address of the new owner.
 
-      (when (= function-id set-node-owner)
+      (function set-node-owner
         (seq (only-node-owner (calldataload 0x04))
 
           ;; Define input parameters to this function.
@@ -120,7 +120,7 @@
       ;; @param label The hash of the label specifying the subnode.
       ;; @param new-owner The address of the new owner.
 
-      (when (= function-id set-subnode-owner)
+      (function set-subnode-owner
         (seq (only-node-owner (calldataload 0x04))
 
           ;; Define input parameters to this function.
@@ -146,7 +146,7 @@
       ;; @param node The node to update.
       ;; @param new-resolver The address of the resolver.
 
-      (when (= function-id set-node-resolver)
+      (function set-node-resolver
         (seq (only-node-owner (calldataload 0x04))
 
           ;; Define input parameters to this function.
@@ -170,7 +170,7 @@
       ;; @param node The node to update.
       ;; @param ttl The TTL in seconds.
 
-      (when (= function-id set-node-ttl)
+      (function set-node-ttl
         (seq (only-node-owner (calldataload 0x04))
 
           ;; Define input parameters to this function.

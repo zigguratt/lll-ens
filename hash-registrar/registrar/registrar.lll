@@ -23,7 +23,7 @@
       ;; @param ens-address The address of the ENS registry.
       ;; @param node The node that this registrar administers.
 
-      (when (= function-id initialize)
+      (function initialize
         (seq only-owner
 
           ;; Define input parameters to this function.
@@ -53,7 +53,7 @@
       ;; @dev Signature: startAuction(bytes32)
       ;; @param hash Auction this hash.
 
-      (when (= function-id start-auction)
+      (function start-auction
         (seq
  
           ;; Define input parameters to this function.

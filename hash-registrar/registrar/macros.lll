@@ -82,24 +82,29 @@
   (def 'invalid-location 0x02)
 
   ;; --------------------------------------------------------------------------
-  ;; @notice Extracts the four leftmost bytes of input.
-  ;; @param input A long number.
+  ;; @notice Shifts the rightmost 4 bytes of <input> left by 28 bytes.
+  ;; @param input A 32-byte number.
 
-  (def 'bytes4 (input)
-    (div input (exp 2 224)))
-
-  ;; --------------------------------------------------------------------------
-  ;; @notice Pads the input so it's the leftmost four bytes of the result.
-  ;; @param input A short hash.
-
-  (def 'pad-right (input)
+  (def 'shift-left (input)
     (mul input (exp 2 224)))
 
   ;; --------------------------------------------------------------------------
-  ;; @notice Retrieves function ID from the first four bytes of the call data.
+  ;; @notice Shifts the leftmost 4 bytes of <input> right by 28 bytes.
+  ;; @param input A 32-byte number.
 
-  (def 'function-id
-    (bytes4 (calldataload 0x00)))
+  (def 'shift-right (input)
+    (div input (exp 2 224)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Determines whether the supplied function ID matches a known
+  ;;         function hash and executes <code-body> if so.
+  ;; @dev The function ID is in the leftmost four bytes of the call data.
+  ;; @param function-hash The four-byte hash of a known function signature.
+  ;; @param code-body The code to run in the case of a match.
+
+  (def 'function (function-hash code-body)
+    (when (= (shift-right (calldataload 0x00)) function-hash)
+      code-body))
 
   ;; --------------------------------------------------------------------------
   ;; @notice Returns the larger of two numbers.
@@ -125,7 +130,7 @@
 
   (def 'call0 (contract function return-size)
     (seq
-      (mstore (+ call-data 0x00) (pad-right function))
+      (mstore (+ call-data 0x00) (shift-left function))
       (call (- (gas) 1000) 0 contract call-data 4 return-data return-size)))
 
   ;; --------------------------------------------------------------------------
@@ -134,7 +139,7 @@
 
   (def 'call1 (contract function p1 return-size)
     (seq
-      (mstore (+ call-data 0x00) (pad-right function))
+      (mstore (+ call-data 0x00) (shift-left function))
       (mstore (+ call-data 0x04) p1)
       (call (- (gas) 1000) 0 contract call-data 36 return-data return-size)))
 
@@ -144,7 +149,7 @@
 
   (def 'call2 (contract function p1 p2 return-size)
     (seq
-      (mstore (+ call-data 0x00) (pad-right function))
+      (mstore (+ call-data 0x00) (shift-left function))
       (mstore (+ call-data 0x04) p1)
       (mstore (+ call-data 0x24) p2)
       (call (- (gas) 1000) 0 contract call-data 68 return-data return-size)))
@@ -155,7 +160,7 @@
 
   (def 'call3 (contract function p1 p2 p3 return-size)
     (seq
-      (mstore (+ call-data 0x00) (pad-right function))
+      (mstore (+ call-data 0x00) (shift-left function))
       (mstore (+ call-data 0x04) p1)
       (mstore (+ call-data 0x24) p2)
       (mstore (+ call-data 0x44) p3)
@@ -180,7 +185,7 @@
       (mstore label-bytes subnode)
 
       ;; Set up the call data.
-      (mstore (+ call-data 0x00) (pad-right get-node-owner))
+      (mstore (+ call-data 0x00) (shift-left get-node-owner))
       (mstore (+ call-data 0x04) (sha3 node-bytes 64))
 
       ;; Call owner(bytes32).
