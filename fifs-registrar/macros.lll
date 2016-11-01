@@ -58,26 +58,6 @@
       code-body))
 
   ;; --------------------------------------------------------------------------
-  ;; @notice Extracts the four leftmost bytes of input.
-  ;; @param input A long number.
-
-  (def 'shift-right (input)
-    (div input (exp 2 224)))
-
-  ;; --------------------------------------------------------------------------
-  ;; @notice Pads the input so it's the leftmost four bytes of the result.
-  ;; @param input A short hash.
-
-  (def 'shift-left (input)
-    (mul input (exp 2 224)))
-
-  ;; --------------------------------------------------------------------------
-  ;; @notice Retrieves function ID from the first four bytes of the call data.
-
-  (def 'function-id
-    (shift-right (calldataload 0x00)))
-
-  ;; --------------------------------------------------------------------------
   ;; @notice Checks that the caller is the contract owner.
 
   (def 'only-owner
