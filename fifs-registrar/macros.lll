@@ -19,18 +19,13 @@
   (def 'call-data   0x80)
 
   ;; Storage.
-  (def 'contract-owner 0x00)
-  (def 'ens-registry   0x01)
-  (def 'root-node      0x02)
+  (def 'ens-registry 0x00)
+  (def 'root-node    0x01)
 
   ;; Precomputed function IDs.
-  (def 'initialize        0xbe13f47c) ; initialize(address,bytes32)
   (def 'register-name     0xd22057a9) ; register(bytes32,address)
   (def 'get-node-owner    0x02571be3) ; owner(bytes32)
   (def 'set-subnode-owner 0x06ab5923) ; setSubnodeOwner(bytes32,bytes32,address)
-
-  ;; Jumping here causes an EVM error.
-  (def 'invalid-location 0x02)
 
   ;; --------------------------------------------------------------------------
   ;; @notice Shifts the rightmost 4 bytes of <input> left by 28 bytes.
@@ -62,18 +57,18 @@
 
   (def 'only-owner
     (when (!= (caller) @@contract-owner)
-      (jump invalid-location)))
+      (panic)))
 
   ;; --------------------------------------------------------------------------
   ;; @notice Checks that the caller is the subnode owner.
   ;; @param subnode Check owner of this subnode.
 
-  (def 'only-subnode-owner (subnode)
+  (def 'only-subnode-owner
     (seq
 
       ;; Store the components of the node for upcoming sha3.
       (mstore node-bytes @@root-node)
-      (mstore label-bytes subnode)
+      (mstore label-bytes (calldataload 0x04))
 
       ;; Set up the call data.
       (mstore (+ call-data 0x00) (shift-left get-node-owner))
@@ -88,6 +83,6 @@
       (when (|| (= @return-code false)
                 (!= @return-data 0x00)
                 (!= @return-data (caller)))
-        (jump invalid-location))))
+        (panic))))
 
 )

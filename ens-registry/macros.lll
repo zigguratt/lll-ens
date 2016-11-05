@@ -12,11 +12,7 @@
   (def 'label-bytes 0x20)
   (def 'call-result 0x40)
 
-  ;; Storage.
-  (def 'contract-owner 0x00)
-
   ;; Precomputed function IDs.
-  (def 'initialize        0xc4d66de8) ; initialize(address)
   (def 'get-node-owner    0x02571be3) ; owner(bytes32)
   (def 'get-node-resolver 0x0178b8bf) ; resolver(bytes32)
   (def 'get-node-ttl      0x16a25cbd) ; ttl(bytes32)
@@ -32,9 +28,6 @@
   (def 'owner    0x00) ; address
   (def 'resolver 0x20) ; address
   (def 'ttl      0x40) ; uint64
-
-  ;; Jumping here causes an EVM error.
-  (def 'invalid-location 0x02)
 
   ;; --------------------------------------------------------------------------
   ;; @notice Shifts the leftmost 4 bytes of a 32-byte number right by 28 bytes.
@@ -94,18 +87,10 @@
     (sload (+ (get-record node) ttl)))
 
   ;; --------------------------------------------------------------------------
-  ;; @notice Checks that the caller is the contract owner.
-  
-  (def 'only-owner
-    (when (!= (caller) @@contract-owner)
-      (jump invalid-location)))
-
-  ;; --------------------------------------------------------------------------
   ;; @notice Checks that the caller is the node owner.
-  ;; @param node Check owner of this node.
 
-  (def 'only-node-owner (node)
-    (when (!= (caller) (get-owner node))
-      (jump invalid-location)))
+  (def 'only-node-owner
+    (when (!= (caller) (get-owner (calldataload 0x04)))
+      (panic)))
 
 )

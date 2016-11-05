@@ -7,31 +7,18 @@
   ;; --------------------------------------------------------------------------
   ;; INIT
 
+  ;; Bring in our macro definitions.
   (include "macros.lll")
-  (sstore contract-owner (caller))
+
+  ;; Record the 'owner' constructor parameter as the ENS root owner.
+  (codecopy 0x00 (bytecodesize) 32)
+  (sstore (+ records owner) @0x00)
 
   ;; --------------------------------------------------------------------------
   ;; CODE
 
   (returnlll
     (seq
-
-      ;; ----------------------------------------------------------------------
-      ;; @notice Initializes the ENS registry.
-      ;; @dev Signature: initialize(address)
-      ;; @param root-owner Address of the root node owner.
-
-      (function initialize
-        (seq only-owner
-
-          ;; Define input parameters to this function.
-          (def 'root-owner (calldataload 0x04))
-
-          ;; Set ownership of root node by storing passed-in address.
-          (sstore (+ records owner) root-owner)
-
-          ;; Nothing to return.
-          (stop)))
 
       ;; ----------------------------------------------------------------------
       ;; @notice Returns the address that owns the specified node.
@@ -95,7 +82,7 @@
       ;; @param new-owner The address of the new owner.
 
       (function set-node-owner
-        (seq (only-node-owner (calldataload 0x04))
+        (seq only-node-owner
 
           ;; Define input parameters to this function.
           (def 'node (calldataload 0x04))
@@ -121,7 +108,7 @@
       ;; @param new-owner The address of the new owner.
 
       (function set-subnode-owner
-        (seq (only-node-owner (calldataload 0x04))
+        (seq only-node-owner
 
           ;; Define input parameters to this function.
           (def 'node (calldataload 0x04))
@@ -147,7 +134,7 @@
       ;; @param new-resolver The address of the resolver.
 
       (function set-node-resolver
-        (seq (only-node-owner (calldataload 0x04))
+        (seq only-node-owner
 
           ;; Define input parameters to this function.
           (def 'node (calldataload 0x04))
@@ -171,7 +158,7 @@
       ;; @param ttl The TTL in seconds.
 
       (function set-node-ttl
-        (seq (only-node-owner (calldataload 0x04))
+        (seq only-node-owner
 
           ;; Define input parameters to this function.
           (def 'node (calldataload 0x04))
@@ -191,6 +178,6 @@
       ;; ----------------------------------------------------------------------
       ;; @notice Fallback: No functions matched the function ID provided.
 
-      (jump invalid-location)))
+      (panic)))
 
 )
