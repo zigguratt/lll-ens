@@ -12,6 +12,14 @@
   (def 'label-bytes 0x20)
   (def 'call-result 0x40)
 
+  ;; Storage.
+  (def 'records 0x00) ; Mapping base address.
+
+  ;; Struct: Record
+  (def 'owner    0x00) ; address
+  (def 'resolver 0x20) ; address
+  (def 'ttl      0x40) ; uint64
+
   ;; Precomputed function IDs.
   (def 'get-node-owner    0x02571be3) ; owner(bytes32)
   (def 'get-node-resolver 0x0178b8bf) ; resolver(bytes32)
@@ -20,14 +28,6 @@
   (def 'set-subnode-owner 0x06ab5923) ; setSubnodeOwner(bytes32,bytes32,address)
   (def 'set-node-resolver 0x1896f70a) ; setResolver(bytes32,address)
   (def 'set-node-ttl      0x14ab9038) ; setTTL(bytes32,uint64)
-
-  ;; Mapping: web3.sha3("records")
-  (def 'records 0x54f4360834cbc1e48233023b2ea917d7065a8175d3c2c80d0a81bce375047e79)
-
-  ;; Struct: Record
-  (def 'owner    0x00) ; address
-  (def 'resolver 0x20) ; address
-  (def 'ttl      0x40) ; uint64
 
   ;; --------------------------------------------------------------------------
   ;; @notice Shifts the leftmost 4 bytes of a 32-byte number right by 28 bytes.

@@ -18,16 +18,14 @@
   (def 'call-data   0x60)
 
   ;; Storage.
-  (def 'ens-registry 0x00)
+  (def 'ens-registry 0x00) ; Address of ens registry.
+  (def 'addresses    0x01) ; Mapping base address.
 
   ;; Precomputed function IDs.
   (def 'has-record-type  0x41b9dc2b) ; has(bytes32,bytes32)
   (def 'get-node-address 0x3b3b57de) ; addr(bytes32)
   (def 'set-node-address 0xd5fa2b00) ; setAddr(bytes32,address)
   (def 'get-node-owner   0x02571be3) ; owner(bytes32)
-
-  ;; Mapping: web3.sha3("addresses")
-  (def 'addresses 0x4210e5b5e314de2f302893e9e54a8d74cdb13aabc4483e34a1abb30c0ae64e1b)
 
   ;; --------------------------------------------------------------------------
   ;; @notice Shifts the rightmost 4 bytes of <input> left by 28 bytes.
