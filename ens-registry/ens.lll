@@ -10,7 +10,7 @@
   ;; Bring in our macro definitions.
   (include "macros.lll")
 
-  ;; Record the 'owner' constructor parameter as the ENS root owner.
+  ;; Store the constructor parameter.
   (codecopy 0x00 (bytecodesize) 32)
   (sstore (+ records owner) @0x00)
 
