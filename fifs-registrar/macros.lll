@@ -12,7 +12,7 @@
 
   ;; Storage layout.
   (def 'ens-registry 0x00) ; Address of ens registry.
-  (def 'root-node    0x01) ; Address of the root node.
+  (def 'root-node    0x01) ; Hash of the root node.
 
   ;; Precomputed function IDs.
   (def 'register-name     0xd22057a9) ; register(bytes32,address)
