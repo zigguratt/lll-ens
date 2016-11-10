@@ -7,12 +7,10 @@
   ;; --------------------------------------------------------------------------
   ;; Constant definitions.
 
-  ;; Memory.
-  (def 'node-bytes  0x00)
-  (def 'label-bytes 0x20)
-  (def 'call-result 0x40)
+  ;; Required standard library version.
+  (def 'required-stdlib "0.1.0")
 
-  ;; Storage.
+  ;; Storage layout.
   (def 'records 0x00) ; Mapping base address.
 
   ;; Struct: Record
@@ -30,24 +28,6 @@
   (def 'set-node-ttl      0x14ab9038) ; setTTL(bytes32,uint64)
 
   ;; --------------------------------------------------------------------------
-  ;; @notice Shifts the leftmost 4 bytes of a 32-byte number right by 28 bytes.
-  ;; @param input A 32-byte number.
-
-  (def 'shift-right (input)
-    (div input (exp 2 224)))
-
-  ;; --------------------------------------------------------------------------
-  ;; @notice Determines whether the supplied function ID matches a known
-  ;;         function hash and executes <code-body> if so.
-  ;; @dev The function ID is in the leftmost four bytes of the call data.
-  ;; @param function-hash The four-byte hash of a known function signature.
-  ;; @param code-body The code to run in the case of a match.
-
-  (def 'function (function-hash code-body)
-    (when (= (shift-right (calldataload 0x00)) function-hash)
-      code-body))
-
-  ;; --------------------------------------------------------------------------
   ;; @notice Calculates record location for node passed in.
   ;; @param node Return the record location of this node.
 
@@ -61,9 +41,9 @@
 
   (def 'get-record (node label)
     (seq
-      (mstore node-bytes node)
-      (mstore label-bytes label)
-      (+ records (sha3 node-bytes 64))))
+      (mstore scratch-one node)
+      (mstore scratch-two label)
+      (+ records (sha3 scratch-one 64))))
 
   ;; --------------------------------------------------------------------------
   ;; @notice Retrieves owner from node record.

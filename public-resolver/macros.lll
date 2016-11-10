@@ -7,17 +7,10 @@
   ;; --------------------------------------------------------------------------
   ;; Constant definitions.
 
-  ;; Booleans.
-  (def 'true  1)
-  (def 'false 0)
+  ;; Required standard library version.
+  (def 'required-stdlib "0.1.0")
 
-  ;; Memory.
-  (def 'call-result 0x00)
-  (def 'return-code 0x20)
-  (def 'return-data 0x40)
-  (def 'call-data   0x60)
-
-  ;; Storage.
+  ;; Storage layout.
   (def 'ens-registry 0x00) ; Address of ens registry.
   (def 'addresses    0x01) ; Mapping base address.
 
@@ -26,31 +19,6 @@
   (def 'get-node-address 0x3b3b57de) ; addr(bytes32)
   (def 'set-node-address 0xd5fa2b00) ; setAddr(bytes32,address)
   (def 'get-node-owner   0x02571be3) ; owner(bytes32)
-
-  ;; --------------------------------------------------------------------------
-  ;; @notice Shifts the rightmost 4 bytes of <input> left by 28 bytes.
-  ;; @param input A 32-byte number.
-
-  (def 'shift-left (input)
-    (mul input (exp 2 224)))
-
-  ;; --------------------------------------------------------------------------
-  ;; @notice Shifts the leftmost 4 bytes of <input> right by 28 bytes.
-  ;; @param input A 32-byte number.
-
-  (def 'shift-right (input)
-    (div input (exp 2 224)))
-
-  ;; --------------------------------------------------------------------------
-  ;; @notice Determines whether the supplied function ID matches a known
-  ;;         function hash and executes <code-body> if so.
-  ;; @dev The function ID is in the leftmost four bytes of the call data.
-  ;; @param function-hash The four-byte hash of a known function signature.
-  ;; @param code-body The code to run in the case of a match.
-
-  (def 'function (function-hash code-body)
-    (when (= (shift-right (calldataload 0x00)) function-hash)
-      code-body))
 
   ;; --------------------------------------------------------------------------
   ;; @notice Returns any address for node passed in.
@@ -69,18 +37,13 @@
 
   ;; --------------------------------------------------------------------------
   ;; @notice Checks that the caller is the node owner.
-  ;; @param node Check owner of this node.
 
   (def 'only-node-owner
     (seq
 
-      ;; Set up the call data.
-      (mstore (+ call-data 0x00) (shift-left get-node-owner))
-      (mstore (+ call-data 0x04) (calldataload 0x04))
-
       ;; Call owner(bytes32).
-      (mstore return-code (call (- (gas) 1000) 0 @@ens-registry
-          call-data 36 return-data 32))
+      (mstore return-code (call1 @@ens-registry get-node-owner
+          (calldataload 0x04) 32))
 
       ;; If the call failed or the caller isn't the current node owner,
       ;; throw an exception.

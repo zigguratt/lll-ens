@@ -8,12 +8,17 @@
   ;; INIT
 
   ;; Bring in our macro definitions.
+  (include "../stdlib.lll")
   (include "macros.lll")
 
+  ;; Make sure we're working with the right library version.
+  (when (!= stdlib-version required-stdlib)
+    (panic))
+
   ;; Store the constructor parameters.
-  (codecopy 0x00 (bytecodesize) 64)
-  (sstore ens-registry @0x00)
-  (sstore root-node @0x20)
+  (codecopy scratch-one (bytecodesize) 64)
+  (sstore ens-registry @scratch-one)
+  (sstore root-node @scratch-two)
 
   ;; --------------------------------------------------------------------------
   ;; CODE
@@ -34,16 +39,10 @@
           (def 'subnode (calldataload 0x04))
           (def 'owner (calldataload 0x24))
 
-          ;; Set up the call data.
-          (mstore (+ call-data 0x00) (shift-left set-subnode-owner))
-          (mstore (+ call-data 0x04) @@root-node)
-          (mstore (+ call-data 0x24) subnode)
-          (mstore (+ call-data 0x44) owner)
-
-          ;; Call setSubnodeOwner(bytes32,bytes32,address). If the call failed,
-          ;; throw an exception.
-          (when (= false (call (- (gas) 1000) 0 @@ens-registry
-              call-data 100 return-data 0))
+          ;; Call setSubnodeOwner(bytes32,bytes32,address).
+          ;; If the call fails, throw an exception.
+          (when (= false (call3 @@ens-registry set-subnode-owner
+              @@root-node subnode owner 0))
             (panic))
 
           ;; Nothing to return.

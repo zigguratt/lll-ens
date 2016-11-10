@@ -8,11 +8,16 @@
   ;; INIT
 
   ;; Bring in our macro definitions.
+  (include "../stdlib.lll")
   (include "macros.lll")
 
+  ;; Make sure we're working with the right library version.
+  (when (!= stdlib-version required-stdlib)
+    (panic))
+
   ;; Store the constructor parameter.
-  (codecopy 0x00 (bytecodesize) 32)
-  (sstore (+ records owner) @0x00)
+  (codecopy scratch-one (bytecodesize) 32)
+  (sstore (+ records owner) @scratch-one)
 
   ;; --------------------------------------------------------------------------
   ;; CODE

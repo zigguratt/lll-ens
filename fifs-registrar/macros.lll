@@ -7,57 +7,17 @@
   ;; --------------------------------------------------------------------------
   ;; Constant definitions.
 
-  ;; Booleans.
-  (def 'true  1)
-  (def 'false 0)
+  ;; Required standard library version.
+  (def 'required-stdlib "0.1.0")
 
-  ;; Memory.
-  (def 'node-bytes  0x00)
-  (def 'label-bytes 0x20)
-  (def 'return-code 0x40)
-  (def 'return-data 0x60)
-  (def 'call-data   0x80)
-
-  ;; Storage.
-  (def 'ens-registry 0x00)
-  (def 'root-node    0x01)
+  ;; Storage layout.
+  (def 'ens-registry 0x00) ; Address of ens registry.
+  (def 'root-node    0x01) ; Address of the root node.
 
   ;; Precomputed function IDs.
   (def 'register-name     0xd22057a9) ; register(bytes32,address)
   (def 'get-node-owner    0x02571be3) ; owner(bytes32)
   (def 'set-subnode-owner 0x06ab5923) ; setSubnodeOwner(bytes32,bytes32,address)
-
-  ;; --------------------------------------------------------------------------
-  ;; @notice Shifts the rightmost 4 bytes of <input> left by 28 bytes.
-  ;; @param input A 32-byte number.
-
-  (def 'shift-left (input)
-    (mul input (exp 2 224)))
-
-  ;; --------------------------------------------------------------------------
-  ;; @notice Shifts the leftmost 4 bytes of <input> right by 28 bytes.
-  ;; @param input A 32-byte number.
-
-  (def 'shift-right (input)
-    (div input (exp 2 224)))
-
-  ;; --------------------------------------------------------------------------
-  ;; @notice Determines whether the supplied function ID matches a known
-  ;;         function hash and executes <code-body> if so.
-  ;; @dev The function ID is in the leftmost four bytes of the call data.
-  ;; @param function-hash The four-byte hash of a known function signature.
-  ;; @param code-body The code to run in the case of a match.
-
-  (def 'function (function-hash code-body)
-    (when (= (shift-right (calldataload 0x00)) function-hash)
-      code-body))
-
-  ;; --------------------------------------------------------------------------
-  ;; @notice Checks that the caller is the contract owner.
-
-  (def 'only-owner
-    (when (!= (caller) @@contract-owner)
-      (panic)))
 
   ;; --------------------------------------------------------------------------
   ;; @notice Checks that the caller is the subnode owner.
@@ -67,22 +27,18 @@
     (seq
 
       ;; Store the components of the node for upcoming sha3.
-      (mstore node-bytes @@root-node)
-      (mstore label-bytes (calldataload 0x04))
-
-      ;; Set up the call data.
-      (mstore (+ call-data 0x00) (shift-left get-node-owner))
-      (mstore (+ call-data 0x04) (sha3 node-bytes 64))
+      (mstore scratch-one @@root-node)
+      (mstore scratch-two (calldataload 0x04))
 
       ;; Call owner(bytes32).
-      (mstore return-code (call (- (gas) 1000) 0 @@ens-registry
-          call-data 36 return-data 32))
+      (mstore return-code (call1 @@ens-registry get-node-owner
+          (sha3 scratch-one 64) 32))
 
-      ;; If the call failed or the caller isn't the current subnode owner, or
-      ;; indeed if there's no owner at all, throw an exception.
+      ;; If the call failed or the caller isn't the current subnode owner,
+      ;; throw an exception.
       (when (|| (= @return-code false)
-                (!= @return-data 0x00)
-                (!= @return-data (caller)))
+                (&& (!= @return-data 0x00)
+                    (!= @return-data (caller))))
         (panic))))
 
 )
