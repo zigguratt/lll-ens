@@ -33,12 +33,11 @@
       ;; @return True if this resolver has a record of the provided type on the
       ;;         provided node.
 
+      (def 'node (calldataload 0x04))
+      (def 'kind (calldataload 0x24))
+
       (function has-record-type
         (seq
-
-          ;; Define input parameters to this function.
-          (def 'node (calldataload 0x04))
-          (def 'kind (calldataload 0x24))
 
           ;; Do the required comparison and save for return.
           (mstore call-result (&& (= kind "addr") (!= (get-address node) 0)))
@@ -52,11 +51,10 @@
       ;; @param node The ENS node to query.
       ;; @return The associated address.
 
+      (def 'node (calldataload 0x04))
+
       (function get-node-address
         (seq
-
-          ;; Define input parameters to this function.
-          (def 'node (calldataload 0x04))
 
           ;; Retrieve the node's address.
           (mstore call-result (get-address node))
@@ -74,12 +72,11 @@
       ;; @param node The node to update.
       ;; @param addr The address to set.
 
-      (function set-node-address
-        (seq only-node-owner
+      (def 'node (calldataload 0x04))
+      (def 'addr (calldataload 0x24))
 
-          ;; Define input parameters to this function.
-          (def 'node (calldataload 0x04))
-          (def 'addr (calldataload 0x24))
+      (function set-node-address
+        (seq (only-node-owner node)
 
           ;; Store the node's new address.
           (set-address node addr)

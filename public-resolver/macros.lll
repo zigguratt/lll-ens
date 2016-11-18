@@ -38,12 +38,11 @@
   ;; --------------------------------------------------------------------------
   ;; @notice Checks that the caller is the node owner.
 
-  (def 'only-node-owner
+  (def 'only-node-owner (node)
     (seq
 
       ;; Call owner(bytes32).
-      (mstore return-code (call1 @@ens-registry get-node-owner
-          (calldataload 0x04) 32))
+      (mstore return-code (call1 @@ens-registry get-node-owner node 32))
 
       ;; If the call failed or the caller isn't the current node owner,
       ;; throw an exception.

@@ -23,12 +23,12 @@
   ;; @notice Checks that the caller is the subnode owner.
   ;; @param subnode Check owner of this subnode.
 
-  (def 'only-subnode-owner
+  (def 'only-subnode-owner (subnode)
     (seq
 
       ;; Store the components of the node for upcoming sha3.
       (mstore scratch-one @@root-node)
-      (mstore scratch-two (calldataload 0x04))
+      (mstore scratch-two subnode)
 
       ;; Call owner(bytes32).
       (mstore return-code (call1 @@ens-registry get-node-owner
