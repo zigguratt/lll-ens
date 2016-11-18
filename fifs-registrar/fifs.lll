@@ -7,8 +7,18 @@
   ;; --------------------------------------------------------------------------
   ;; INIT
 
+  ;; Bring in our macro definitions.
+  (include "../stdlib.lll")
   (include "macros.lll")
-  (sstore contract-owner (caller))
+
+  ;; Make sure we're working with the right library version.
+  (when (!= stdlib-version required-stdlib)
+    (panic))
+
+  ;; Store the constructor parameters.
+  (codecopy scratch-one (bytecodesize) 64)
+  (sstore ens-registry @scratch-one)
+  (sstore root-node @scratch-two)
 
   ;; --------------------------------------------------------------------------
   ;; CODE
@@ -17,49 +27,22 @@
     (seq
 
       ;; ----------------------------------------------------------------------
-      ;; @notice Initializes the FIFS registrar.
-      ;; @dev Signature: initialize(address,bytes32)
-      ;; @param ens-address The address of the ENS registry.
-      ;; @param node The node that this registrar administers.
-
-      (function initialize
-        (seq only-owner
-
-          ;; Define input parameters to this function.
-          (def 'ens-address (calldataload 0x04))
-          (def 'node (calldataload 0x24))
-
-          ;; Store the "constructor" parameters.
-          (sstore ens-registry ens-address)
-          (sstore root-node node)
-
-          ;; Stop here; nothing to return.
-          (stop)))
-
-      ;; ----------------------------------------------------------------------
       ;; @notice Registers a name or changes owner of an existing registration.
       ;; @dev Signature: register(bytes32,address)
       ;; @param subnode The hash of the label to register.
       ;; @param owner The address of the new owner.
 
+      (def 'subnode (calldataload 0x04))
+      (def 'owner (calldataload 0x24))
+
       (function register-name
-        (seq (only-subnode-owner (calldataload 0x04))
+        (seq (only-subnode-owner subnode)
 
-          ;; Define input parameters to this function.
-          (def 'subnode (calldataload 0x04))
-          (def 'owner (calldataload 0x24))
-
-          ;; Set up the call data.
-          (mstore (+ call-data 0x00) (shift-left set-subnode-owner))
-          (mstore (+ call-data 0x04) @@root-node)
-          (mstore (+ call-data 0x24) subnode)
-          (mstore (+ call-data 0x44) owner)
-
-          ;; Call setSubnodeOwner(bytes32,bytes32,address). If the call failed,
-          ;; throw an exception.
-          (when (= false (call (- (gas) 1000) 0 @@ens-registry
-              call-data 100 return-data 0))
-            (jump invalid-location))
+          ;; Call setSubnodeOwner(bytes32,bytes32,address).
+          ;; If the call fails, throw an exception.
+          (when (= false (call3 @@ens-registry set-subnode-owner
+              @@root-node subnode owner 0))
+            (panic))
 
           ;; Nothing to return.
           (stop)))
@@ -67,6 +50,6 @@
       ;; ----------------------------------------------------------------------
       ;; @notice Fallback: No functions matched the function ID provided.
 
-      (jump invalid-location)))
+      (panic)))
 
 )

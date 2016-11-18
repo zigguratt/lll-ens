@@ -7,31 +7,23 @@
   ;; --------------------------------------------------------------------------
   ;; INIT
 
+  ;; Bring in our macro definitions.
+  (include "../stdlib.lll")
   (include "macros.lll")
-  (sstore contract-owner (caller))
+
+  ;; Make sure we're working with the right library version.
+  (when (!= stdlib-version required-stdlib)
+    (panic))
+
+  ;; Store the constructor parameter.
+  (codecopy scratch-one (bytecodesize) 32)
+  (sstore ens-registry @scratch-one)
 
   ;; --------------------------------------------------------------------------
   ;; CODE
 
   (returnlll
     (seq
-
-      ;; ----------------------------------------------------------------------
-      ;; @notice Initializes the public resolver.
-      ;; @dev Signature: initialize(address)
-      ;; @param ens-address The ENS registrar contract.
-
-      (function initialize
-        (seq only-owner
-
-          ;; Define input parameters to this function.
-          (def 'ens-address (calldataload 0x04))
-
-          ; Store the "constructor" parameter.
-          (sstore ens-registry ens-address)
-
-          ;; Stop here; nothing to return.
-          (stop)))
 
       ;; ----------------------------------------------------------------------
       ;; @notice Returns true if specified node has specified record type.
@@ -41,12 +33,11 @@
       ;; @return True if this resolver has a record of the provided type on the
       ;;         provided node.
 
+      (def 'node (calldataload 0x04))
+      (def 'kind (calldataload 0x24))
+
       (function has-record-type
         (seq
-
-          ;; Define input parameters to this function.
-          (def 'node (calldataload 0x04))
-          (def 'kind (calldataload 0x24))
 
           ;; Do the required comparison and save for return.
           (mstore call-result (&& (= kind "addr") (!= (get-address node) 0)))
@@ -60,17 +51,16 @@
       ;; @param node The ENS node to query.
       ;; @return The associated address.
 
+      (def 'node (calldataload 0x04))
+
       (function get-node-address
         (seq
-
-          ;; Define input parameters to this function.
-          (def 'node (calldataload 0x04))
 
           ;; Retrieve the node's address.
           (mstore call-result (get-address node))
 
           (when (= @call-result 0)
-            (jump invalid-location))
+            (panic))
 
           ;; Return result.
           (return call-result 32)))
@@ -82,12 +72,11 @@
       ;; @param node The node to update.
       ;; @param addr The address to set.
 
-      (function set-node-address
-        (seq (only-node-owner (calldataload 0x04))
+      (def 'node (calldataload 0x04))
+      (def 'addr (calldataload 0x24))
 
-          ;; Define input parameters to this function.
-          (def 'node (calldataload 0x04))
-          (def 'addr (calldataload 0x24))
+      (function set-node-address
+        (seq (only-node-owner node)
 
           ;; Store the node's new address.
           (set-address node addr)
@@ -98,6 +87,6 @@
       ;; ----------------------------------------------------------------------
       ;; @notice Fallback: No functions matched the function ID provided.
 
-      (jump invalid-location)))
+      (panic)))
 
 )

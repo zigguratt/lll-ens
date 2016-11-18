@@ -7,57 +7,18 @@
   ;; --------------------------------------------------------------------------
   ;; Constant definitions.
 
-  ;; Booleans.
-  (def 'true  1)
-  (def 'false 0)
+  ;; Required standard library version.
+  (def 'required-stdlib "0.1.0")
 
-  ;; Memory.
-  (def 'call-result 0x00)
-  (def 'return-code 0x20)
-  (def 'return-data 0x40)
-  (def 'call-data   0x60)
-
-  ;; Storage.
-  (def 'contract-owner 0x00)
-  (def 'ens-registry   0x01)
+  ;; Storage layout.
+  (def 'ens-registry 0x00) ; Address of ens registry.
+  (def 'addresses    0x01) ; Mapping base address.
 
   ;; Precomputed function IDs.
-  (def 'initialize       0xc4d66de8) ; initialize(address)
   (def 'has-record-type  0x41b9dc2b) ; has(bytes32,bytes32)
   (def 'get-node-address 0x3b3b57de) ; addr(bytes32)
   (def 'set-node-address 0xd5fa2b00) ; setAddr(bytes32,address)
   (def 'get-node-owner   0x02571be3) ; owner(bytes32)
-
-  ;; Mapping: web3.sha3("addresses")
-  (def 'addresses 0x4210e5b5e314de2f302893e9e54a8d74cdb13aabc4483e34a1abb30c0ae64e1b)
-
-  ;; Jumping here causes an EVM error.
-  (def 'invalid-location 0x02)
-
-  ;; --------------------------------------------------------------------------
-  ;; @notice Shifts the rightmost 4 bytes of <input> left by 28 bytes.
-  ;; @param input A 32-byte number.
-
-  (def 'shift-left (input)
-    (mul input (exp 2 224)))
-
-  ;; --------------------------------------------------------------------------
-  ;; @notice Shifts the leftmost 4 bytes of <input> right by 28 bytes.
-  ;; @param input A 32-byte number.
-
-  (def 'shift-right (input)
-    (div input (exp 2 224)))
-
-  ;; --------------------------------------------------------------------------
-  ;; @notice Determines whether the supplied function ID matches a known
-  ;;         function hash and executes <code-body> if so.
-  ;; @dev The function ID is in the leftmost four bytes of the call data.
-  ;; @param function-hash The four-byte hash of a known function signature.
-  ;; @param code-body The code to run in the case of a match.
-
-  (def 'function (function-hash code-body)
-    (when (= (shift-right (calldataload 0x00)) function-hash)
-      code-body))
 
   ;; --------------------------------------------------------------------------
   ;; @notice Returns any address for node passed in.
@@ -75,30 +36,17 @@
     (sstore (+ addresses node) addr))
 
   ;; --------------------------------------------------------------------------
-  ;; @notice Checks that the caller is the contract owner.
-
-  (def 'only-owner
-    (when (!= (caller) @@contract-owner)
-      (jump invalid-location)))
-
-  ;; --------------------------------------------------------------------------
   ;; @notice Checks that the caller is the node owner.
-  ;; @param node Check owner of this node.
 
   (def 'only-node-owner (node)
     (seq
 
-      ;; Set up the call data.
-      (mstore (+ call-data 0x00) (shift-left get-node-owner))
-      (mstore (+ call-data 0x04) node)
-
       ;; Call owner(bytes32).
-      (mstore return-code (call (- (gas) 1000) 0 @@ens-registry
-          call-data 36 return-data 32))
+      (mstore return-code (call1 @@ens-registry get-node-owner node 32))
 
       ;; If the call failed or the caller isn't the current node owner,
       ;; throw an exception.
       (when (|| (= @return-code false) (!= @return-data (caller)))
-        (jump invalid-location))))
+        (panic))))
 
 )

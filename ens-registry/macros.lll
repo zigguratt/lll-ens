@@ -7,16 +7,18 @@
   ;; --------------------------------------------------------------------------
   ;; Constant definitions.
 
-  ;; Memory.
-  (def 'node-bytes  0x00)
-  (def 'label-bytes 0x20)
-  (def 'call-result 0x40)
+  ;; Required standard library version.
+  (def 'required-stdlib "0.1.0")
 
-  ;; Storage.
-  (def 'contract-owner 0x00)
+  ;; Storage layout.
+  (def 'records 0x00) ; Mapping base address.
+
+  ;; Struct: Record
+  (def 'owner    0x00) ; address
+  (def 'resolver 0x20) ; address
+  (def 'ttl      0x40) ; uint64
 
   ;; Precomputed function IDs.
-  (def 'initialize        0xc4d66de8) ; initialize(address)
   (def 'get-node-owner    0x02571be3) ; owner(bytes32)
   (def 'get-node-resolver 0x0178b8bf) ; resolver(bytes32)
   (def 'get-node-ttl      0x16a25cbd) ; ttl(bytes32)
@@ -24,35 +26,6 @@
   (def 'set-subnode-owner 0x06ab5923) ; setSubnodeOwner(bytes32,bytes32,address)
   (def 'set-node-resolver 0x1896f70a) ; setResolver(bytes32,address)
   (def 'set-node-ttl      0x14ab9038) ; setTTL(bytes32,uint64)
-
-  ;; Mapping: web3.sha3("records")
-  (def 'records 0x54f4360834cbc1e48233023b2ea917d7065a8175d3c2c80d0a81bce375047e79)
-
-  ;; Struct: Record
-  (def 'owner    0x00) ; address
-  (def 'resolver 0x20) ; address
-  (def 'ttl      0x40) ; uint64
-
-  ;; Jumping here causes an EVM error.
-  (def 'invalid-location 0x02)
-
-  ;; --------------------------------------------------------------------------
-  ;; @notice Shifts the leftmost 4 bytes of a 32-byte number right by 28 bytes.
-  ;; @param input A 32-byte number.
-
-  (def 'shift-right (input)
-    (div input (exp 2 224)))
-
-  ;; --------------------------------------------------------------------------
-  ;; @notice Determines whether the supplied function ID matches a known
-  ;;         function hash and executes <code-body> if so.
-  ;; @dev The function ID is in the leftmost four bytes of the call data.
-  ;; @param function-hash The four-byte hash of a known function signature.
-  ;; @param code-body The code to run in the case of a match.
-
-  (def 'function (function-hash code-body)
-    (when (= (shift-right (calldataload 0x00)) function-hash)
-      code-body))
 
   ;; --------------------------------------------------------------------------
   ;; @notice Calculates record location for node passed in.
@@ -68,9 +41,9 @@
 
   (def 'get-record (node label)
     (seq
-      (mstore node-bytes node)
-      (mstore label-bytes label)
-      (+ records (sha3 node-bytes 64))))
+      (mstore scratch-one node)
+      (mstore scratch-two label)
+      (+ records (sha3 scratch-one 64))))
 
   ;; --------------------------------------------------------------------------
   ;; @notice Retrieves owner from node record.
@@ -80,11 +53,36 @@
     (sload (+ (get-record node) owner)))
 
   ;; --------------------------------------------------------------------------
+  ;; @notice Stores new owner in node record.
+  ;; @param node Set owner of this node.
+  ;; @param new-owner New owner of this node.
+
+  (def 'set-owner (node new-owner)
+    (sstore (+ (get-record node) owner) new-owner))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Stores new subnode owner in node record.
+  ;; @param node Set owner of this node.
+  ;; @param label The hash of the label specifying the subnode.
+  ;; @param new-owner New owner of the subnode.
+
+  (def 'set-subnode-owner (node label new-owner)
+    (sstore (+ (get-record node label) owner) new-owner))
+
+  ;; --------------------------------------------------------------------------
   ;; @notice Retrieves resolver from node record.
   ;; @param node Get resolver of this node.
 
   (def 'get-resolver (node)
     (sload (+ (get-record node) resolver)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Stores new resolver in node record.
+  ;; @param node Set resolver of this node.
+  ;; @param new-resolver New resolver for this node.
+
+  (def 'set-resolver (node new-resolver)
+    (sstore (+ (get-record node) resolver) new-resolver))
 
   ;; --------------------------------------------------------------------------
   ;; @notice Retrieves TTL From node record.
@@ -94,18 +92,18 @@
     (sload (+ (get-record node) ttl)))
 
   ;; --------------------------------------------------------------------------
-  ;; @notice Checks that the caller is the contract owner.
-  
-  (def 'only-owner
-    (when (!= (caller) @@contract-owner)
-      (jump invalid-location)))
+  ;; @notice Stores new TTL in node record.
+  ;; @param node Set TTL of this node.
+  ;; @param new-resolver New TTL for this node.
+
+  (def 'set-ttl (node new-ttl)
+    (sstore (+ (get-record node) ttl) new-ttl))
 
   ;; --------------------------------------------------------------------------
   ;; @notice Checks that the caller is the node owner.
-  ;; @param node Check owner of this node.
 
   (def 'only-node-owner (node)
     (when (!= (caller) (get-owner node))
-      (jump invalid-location)))
+      (panic)))
 
 )

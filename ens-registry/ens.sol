@@ -1,7 +1,7 @@
 contract ENS {
 
-	// Functions.
-    function initialize(address owner);
+    // Functions.
+    function ENS(address owner);
     function owner(bytes32 node) constant returns(address);
     function resolver(bytes32 node) constant returns(address);
     function ttl(bytes32 node) constant returns(uint64);
