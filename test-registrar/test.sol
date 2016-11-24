@@ -1,6 +1,6 @@
-contract FIFSRegistrar {
+contract TestRegistrar {
 
     // Functions.
-    function FIFSRegistrar(address ensAddr, bytes32 node);
+    function TestRegistrar(address ensAddr, bytes32 node);
     function register(bytes32 subnode, address owner);
 }
