@@ -1,0 +1,62 @@
+;;; ---------------------------------------------------------------------------
+;;; @title A registrar that allocates subdomains to the first claimant.
+;;; @author Daniel Ellison <daniel@syrinx.net>
+
+(seq
+
+  ;; --------------------------------------------------------------------------
+  ;; INIT
+
+  ;; Bring in our macro definitions.
+  (include "../stdlib.lll")
+  (include "macros.lll")
+
+  ;; Make sure we're working with the right library version.
+  (when (!= stdlib-version required-stdlib)
+    (panic))
+
+  ;; Store the constructor parameters.
+  (codecopy scratch-one (bytecodesize) 64)
+  (sstore ens-registry @scratch-one)
+  (sstore root-node @scratch-two)
+
+  ;; --------------------------------------------------------------------------
+  ;; CODE
+
+  (returnlll
+    (seq
+
+      ;; ----------------------------------------------------------------------
+      ;; @notice Registers a name that's not currently registered.
+      ;; @dev Signature: register(bytes32,address)
+      ;; @param subnode The hash of the label to register.
+      ;; @param owner The address of the new owner.
+
+      (def 'subnode (calldataload 0x04))
+      (def 'owner (calldataload 0x24))
+
+      (function register-name
+        (seq
+
+          ;; Check expiry time for this subnode and bail if it's expired.
+          (when (>= (sload (+ expiry-times subnode)) (timestamp))
+            (panic))
+
+          ;; Set expiry time for the subnode.
+          (sstore (+ expiry-times subnode) (+ registration-period (timestamp)))
+
+          ;; Call setSubnodeOwner(bytes32,bytes32,address).
+          ;; If the call fails, throw an exception.
+          (when (= false (call3 @@ens-registry set-subnode-owner
+              @@root-node subnode owner 0))
+            (panic))
+
+          ;; Nothing to return.
+          (stop)))
+
+      ;; ----------------------------------------------------------------------
+      ;; @notice Fallback: No functions matched the function ID provided.
+
+      (panic)))
+
+)
