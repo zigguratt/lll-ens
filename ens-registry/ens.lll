@@ -13,7 +13,7 @@
 
   ;; Make sure we're working with the right library version.
   (when (!= stdlib-version required-stdlib)
-    (panic))
+    (jump invalid-location))
 
   ;; Store the constructor parameter.
   (codecopy scratch-one (bytecodesize) 32)
@@ -180,6 +180,6 @@
       ;; ----------------------------------------------------------------------
       ;; @notice Fallback: No functions matched the function ID provided.
 
-      (panic)))
+      (jump invalid-location)))
 
 )
