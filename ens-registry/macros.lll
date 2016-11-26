@@ -8,10 +8,10 @@
   ;; Constant definitions.
 
   ;; Required standard library version.
-  (def 'required-stdlib "0.1.0")
+  (def 'required-stdlib "0.1.1")
 
   ;; Storage layout.
-  (def 'records 0x00) ; Mapping base address.
+  (def 'records 0x54f43608) ; Short keccak-256 hash of 'records'.
 
   ;; Struct: Record
   (def 'owner    0x00) ; address
@@ -104,6 +104,6 @@
 
   (def 'only-node-owner (node)
     (when (!= (caller) (get-owner node))
-      (panic)))
+      (jump 0x02)))
 
 )
