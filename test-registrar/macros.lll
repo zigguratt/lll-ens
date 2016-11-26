@@ -8,7 +8,7 @@
   ;; Constant definitions.
 
   ;; Miscellaneous.
-  (def 'required-stdlib "0.1.0")
+  (def 'required-stdlib "0.1.1")
   (def 'registration-period 2419200) ; 4 weeks in seconds.
 
   ;; Storage layout.

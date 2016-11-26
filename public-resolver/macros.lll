@@ -8,11 +8,11 @@
   ;; Constant definitions.
 
   ;; Required standard library version.
-  (def 'required-stdlib "0.1.0")
+  (def 'required-stdlib "0.1.1")
 
   ;; Storage layout.
   (def 'ens-registry 0x00) ; Address of ens registry.
-  (def 'addresses    0x01) ; Mapping base address.
+  (def 'addresses 0x4210e5b5) ; Short keccak-256 hash of 'addresses'.
 
   ;; Precomputed function IDs.
   (def 'has-record-type  0x41b9dc2b) ; has(bytes32,bytes32)
@@ -47,6 +47,6 @@
       ;; If the call failed or the caller isn't the current node owner,
       ;; throw an exception.
       (when (|| (= @return-code false) (!= @return-data (caller)))
-        (panic))))
+        (jump invalid-location))))
 
 )

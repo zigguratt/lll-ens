@@ -13,7 +13,7 @@
 
   ;; Make sure we're working with the right library version.
   (when (!= stdlib-version required-stdlib)
-    (panic))
+    (jump invalid-location))
 
   ;; Store the constructor parameters.
   (codecopy scratch-one (bytecodesize) 64)
@@ -42,7 +42,7 @@
           ;; If the call fails, throw an exception.
           (when (= false (call3 @@ens-registry set-subnode-owner
               @@root-node subnode owner 0))
-            (panic))
+            (jump invalid-location))
 
           ;; Nothing to return.
           (stop)))
@@ -50,6 +50,6 @@
       ;; ----------------------------------------------------------------------
       ;; @notice Fallback: No functions matched the function ID provided.
 
-      (panic)))
+      (jump invalid-location)))
 
 )
