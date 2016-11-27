@@ -1,5 +1,7 @@
 ;;; ---------------------------------------------------------------------------
-;;; @title A registrar that allocates subdomains to the first claimant.
+;;; @title A registrar that allocates subdomains to the first person to claim
+;;; them, but expires registrations a fixed period after they're initially
+;;; claimed.
 ;;; @author Daniel Ellison <daniel@syrinx.net>
 
 (seq
@@ -51,7 +53,6 @@
               @@root-node subnode owner 0))
             (jump invalid-location))
 
-          ;; Nothing to return.
           (stop)))
 
       ;; ----------------------------------------------------------------------

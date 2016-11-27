@@ -36,7 +36,7 @@
       (function get-node-owner
         (seq
 
-          ;; Get the node's owner and save it.
+          ;; Get the node's owner and store for return.
           (mstore call-result (get-owner node))
 
           ;; Return result.
@@ -53,7 +53,7 @@
       (function get-node-resolver
         (seq
 
-          ;; Get the node's resolver and save it.
+          ;; Get the node's resolver and store for return.
           (mstore call-result (get-resolver node))
 
           ;; Return result.
@@ -70,7 +70,7 @@
       (function get-node-ttl
         (seq
 
-          ;; Get the node's TTL and save it.
+          ;; Get the node's TTL and store for return.
           (mstore call-result (get-ttl node))
 
           ;; Return result.
@@ -98,7 +98,6 @@
           (log2 call-result 32
               (sha3 0x00 (lit 0x00 "Transfer(bytes32,address)")) node)
 
-          ;; Nothing to return.
           (stop)))
 
       ;; ----------------------------------------------------------------------
@@ -126,7 +125,6 @@
               (sha3 0x00 (lit 0x00 "NewOwner(bytes32,bytes32,address)"))
               node label)
 
-          ;; Nothing to return.
           (stop)))
 
       ;; ----------------------------------------------------------------------
@@ -150,7 +148,6 @@
           (log2 call-result 32
               (sha3 0x00 (lit 0x00 "NewResolver(bytes32,address)")) node)
 
-          ;; Nothing to return.
           (stop)))
 
       ;; ----------------------------------------------------------------------
@@ -174,7 +171,6 @@
           (log2 call-result 32
               (sha3 0x00 (lit 0x00 "NewTTL(bytes32,uint64)")) node)
 
-          ;; Nothing to return.
           (stop)))
 
       ;; ----------------------------------------------------------------------

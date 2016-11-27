@@ -10,7 +10,7 @@
   ;; Required standard library version.
   (def 'required-stdlib "0.1.1")
 
-  ;; Storage layout.
+  ;; Mapping storage address.
   (def 'records 0x54f43608) ; Short keccak-256 hash of 'records'.
 
   ;; Struct: Record

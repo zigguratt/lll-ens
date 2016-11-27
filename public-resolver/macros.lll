@@ -12,6 +12,8 @@
 
   ;; Storage layout.
   (def 'ens-registry 0x00) ; Address of ens registry.
+
+  ;; Mapping storage address.
   (def 'addresses 0x4210e5b5) ; Short keccak-256 hash of 'addresses'.
 
   ;; Precomputed function IDs.

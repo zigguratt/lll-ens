@@ -1,5 +1,5 @@
 ;;; ---------------------------------------------------------------------------
-;;; @title Macros for the Test registrar.
+;;; @title Macros for the test registrar.
 ;;; @author Daniel Ellison <daniel@syrinx.net>
 
 (seq
@@ -14,7 +14,9 @@
   ;; Storage layout.
   (def 'ens-registry 0x00) ; Address of ens registry.
   (def 'root-node    0x01) ; Hash of the root node.
-  (def 'expiry-times 0x02) ; Mapping base address.
+
+  ;; Mapping storage address.
+  (def 'expiry-times 0x51e75003) ; Short keccak-256 hash of 'expiryTimes'
 
   ;; Precomputed function IDs.
   (def 'register-name     0xd22057a9) ; register(bytes32,address)
