@@ -1,6 +1,20 @@
 ;;; ---------------------------------------------------------------------------
 ;;; @title A standard library of LLL macros.
 ;;; @author Daniel Ellison <daniel@syrinx.net>
+;;;
+;;; Copyright 2016 Daniel Ellison
+;;;
+;;;    Licensed under the Apache License, Version 2.0 (the "License");
+;;;    you may not use this file except in compliance with the License.
+;;;    You may obtain a copy of the License at
+;;;
+;;;      http://www.apache.org/licenses/LICENSE-2.0
+;;;
+;;;    Unless required by applicable law or agreed to in writing, software
+;;;    distributed under the License is distributed on an "AS IS" BASIS,
+;;;    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+;;;    See the License for the specific language governing permissions and
+;;;    limitations under the License.
 
 (seq
 
@@ -19,10 +33,10 @@
   ;; Memory layout.
   (def 'scratch-one 0x0000) ; Scratch space.
   (def 'scratch-two 0x0020) ; More scratch space.
-  (def 'return-code 0x0040) ; Boolean return value from <call>.
-  (def 'return-data 0x0060) ; Data returned to <call> (256 byte slush).
-  (def 'call-result 0x0160) ; Data returned from function (256 byte slush).
-  (def 'call-data   0x0260) ; Data provided to <call> (potentially 100 bytes).
+  (def 'return-code 0x0040) ; Boolean returned to calling contract.
+  (def 'return-data 0x0060) ; Data returned to calling contract.
+  (def 'call-result 0x0160) ; Data returned from called contract.
+  (def 'call-data   0x0260) ; Data provided to called contract.
   (def 'user-memory 0x02c4) ; Library user memory start.
 
   ;; --------------------------------------------------------------------------
@@ -38,7 +52,6 @@
   ;; @notice Shifts the leftmost 4 bytes of a 32-byte number right by 28 bytes.
   ;; @dev 0x14ab90388092664827928d90384c73d82c5bf21abb61dd7d4971fc65f4851dfb
   ;;      0x0000000000000000000000000000000000000000000000000000000014ab9038
-  ;;      or simply 0x14ab9038
   ;; @param input A 32-byte number.
 
   (def 'shift-right (input)
@@ -57,7 +70,8 @@
 
   ;; --------------------------------------------------------------------------
   ;; @notice Calls another contract with no paramaters.
-  ;; @dev Sends all but <hold-back> gas to callee.
+  ;; @dev Sends all but <hold-back> gas to called contract. Assumes no ether to
+  ;;      be sent to called contract.
   ;; @param contract-address The address of the contract to call.
   ;; @param function-hash Short hash of the function to call.
   ;; @param return-size The parameter return size of the called function.
@@ -70,7 +84,8 @@
 
   ;; --------------------------------------------------------------------------
   ;; @notice Calls another contract with one paramater.
-  ;; @dev Assumes 32-byte parameters. Sends all but <hold-back> gas to callee.
+  ;; @dev Sends all but <hold-back> gas to called contract. Assumes no ether to
+  ;;      be sent to called contract. Assumes 32-byte parameters.
   ;; @param contract-address The address of the contract to call.
   ;; @param function-hash Short hash of the function to call.
   ;; @param param1 The first (and only) parameter to the function call.
@@ -85,7 +100,8 @@
 
   ;; --------------------------------------------------------------------------
   ;; @notice Calls another contract with two paramaters.
-  ;; @dev Assumes 32-byte parameters. Sends all but <hold-back> gas to callee.
+  ;; @dev Sends all but <hold-back> gas to called contract. Assumes no ether to
+  ;;      be sent to called contract. Assumes 32-byte parameters.
   ;; @param contract-address The address of the contract to call.
   ;; @param function-hash Short hash of the function to call.
   ;; @param param1 The first parameter to the function call.
@@ -102,7 +118,8 @@
 
   ;; --------------------------------------------------------------------------
   ;; @notice Calls another contract with three paramaters.
-  ;; @dev Assumes 32-byte parameters. Sends all but <hold-back> gas to callee.
+  ;; @dev Sends all but <hold-back> gas to called contract. Assumes no ether to
+  ;;      be sent to called contract. Assumes 32-byte parameters.
   ;; @param contract-address The address of the contract to call.
   ;; @param function-hash Short hash of the function to call.
   ;; @param param1 The first parameter to the function call.
