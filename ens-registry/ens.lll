@@ -117,7 +117,7 @@
         (seq (only-node-owner node)
 
           ;; Transfer ownership by storing passed-in address.
-          (set-sub-owner node label new-owner)
+          (set-owner node label new-owner)
 
           ;; Emit an event about the transfer.
           ;; NewOwner(bytes32 indexed node, bytes32 indexed label, address owner);

@@ -66,7 +66,7 @@
   ;; @param label The hash of the label specifying the subnode.
   ;; @param new-owner New owner of the subnode.
 
-  (def 'set-sub-owner (node label new-owner)
+  (def 'set-owner (node label new-owner)
     (sstore (+ (get-record node label) owner) new-owner))
 
   ;; --------------------------------------------------------------------------
