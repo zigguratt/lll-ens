@@ -8,7 +8,7 @@
   ;; Constant definitions.
 
   ;; Required standard library version.
-  (def 'required-stdlib "0.1.1")
+  (def 'required-stdlib "0.1.2")
 
   ;; Storage layout.
   (def 'ens-registry 0x00) ; Address of ens registry.
