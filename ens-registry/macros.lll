@@ -8,7 +8,7 @@
   ;; Constant definitions.
 
   ;; Required standard library version.
-  (def 'required-stdlib "0.1.1")
+  (def 'required-stdlib "0.1.2")
 
   ;; Mapping storage address.
   (def 'records 0x54f43608) ; Short keccak-256 hash of 'records'.
