@@ -26,7 +26,7 @@
   (def 'false 0)
 
   ;; Miscellaneous.
-  (def 'stdlib-version "0.1.1") ; Contracts can abort on version mismatch.
+  (def 'stdlib-version "0.1.2") ; Contracts can abort on version mismatch.
   (def 'invalid-location 0x02)  ; Jumping here causes an EVM panic.
   (def 'hold-back 1000)         ; Amount of gas to hold back on <call>.
 
@@ -149,5 +149,21 @@
 
   (def '-- (loc)
     (mstore loc (- @loc 1)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Returns the smaller of two numbers.
+  ;; @param a First number.
+  ;; @param b Second number.
+
+  (def 'min (a b)
+    (if (< a b) a b))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Returns the larger of two numbers.
+  ;; @param a First number.
+  ;; @param b Second number.
+
+  (def 'max (a b)
+    (if (> a b) a b))
 
 )
