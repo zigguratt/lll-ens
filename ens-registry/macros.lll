@@ -15,8 +15,8 @@
 
   ;; Struct: Record
   (def 'owner    0x00) ; address
-  (def 'resolver 0x20) ; address
-  (def 'ttl      0x40) ; uint64
+  (def 'resolver 0x01) ; address
+  (def 'ttl      0x02) ; uint64
 
   ;; Precomputed function IDs.
   (def 'get-node-owner    0x02571be3) ; owner(bytes32)
