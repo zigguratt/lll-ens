@@ -13,21 +13,30 @@
   ;; Storage layout.
   (def 'ens-registry 0x00) ; Address of ens registry.
 
-  ;; Mapping storage address.
-  (def 'addresses 0x4210e5b5) ; Short keccak-256 hash of 'addresses'.
-
   ;; Precomputed function IDs.
-  (def 'has-record-type  0x41b9dc2b) ; has(bytes32,bytes32)
-  (def 'get-node-address 0x3b3b57de) ; addr(bytes32)
-  (def 'set-node-address 0xd5fa2b00) ; setAddr(bytes32,address)
-  (def 'get-node-owner   0x02571be3) ; owner(bytes32)
+  (def 'has-record-type    0x41b9dc2b) ; has(bytes32,bytes32)
+  (def 'supports-interface 0x01ffc9a7) ; supportsInterface(bytes4)
+  (def 'get-node-address   0x3b3b57de) ; addr(bytes32)
+  (def 'set-node-address   0xd5fa2b00) ; setAddr(bytes32,address)
+  (def 'get-content-hash   0xd8389dc5) ; hash(bytes32)
+  (def 'set-content-hash   0xd7fa1007) ; setHash(bytes32,bytes32)
+  (def 'get-node-owner     0x02571be3) ; owner(bytes32)
 
   ;; --------------------------------------------------------------------------
-  ;; @notice Returns any address for node passed in.
-  ;; @param node Return the address for this node.
+  ;; @notice Hashes a given node to determine its actual storage location.
+  ;; @param node Hash this node address.
+
+  (def 'hash-location (node)
+    (seq
+      (mstore scratch-one node)
+      (sha3 scratch-one 32)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Looks up the address for the node passed in.
+  ;; @param node Get the address for this node.
 
   (def 'get-address (node)
-    (sload (+ addresses node)))
+    (sload (hash-location node)))
 
   ;; --------------------------------------------------------------------------
   ;; @notice Stores the address for the node passed in.
@@ -35,15 +44,31 @@
   ;; @param addr The address to set.
 
   (def 'set-address (node addr)
-    (sstore (+ addresses node) addr))
+    (sstore (hash-location node) addr))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Looks up the content hash for the node passed in.
+  ;; @param node Get the content hash for this node.
+
+  (def 'get-hash (node)
+    (sload (+ (hash-location node) 1)))
+
+  ;; --------------------------------------------------------------------------
+  ;; @notice Stores the content hash for the node passed in.
+  ;; @param node Set the content hash for this node.
+  ;; @param hash The content hash to set.
+
+  (def 'set-hash (node hash)
+    (sstore (+ (hash-location node) 1) hash))
 
   ;; --------------------------------------------------------------------------
   ;; @notice Checks that the caller is the node owner.
+  ;; @param node Check the owner of this node.
 
-  (def 'only-node-owner (node)
+  (def 'only-owner (node)
     (seq
 
-      ;; Call owner(bytes32).
+      ;; Call ens.owner(node).
       (mstore return-code (call1 @@ens-registry get-node-owner node 32))
 
       ;; If the call failed or the caller isn't the current node owner,
